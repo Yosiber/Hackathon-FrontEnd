@@ -4,15 +4,18 @@ import ThemeToggle from "../themetoggle/ThemeToggle"
 
 export default function Sidebar() {
   return (
-      <aside className="h-screen w-64 bg-white dark:bg-gray-800 border-r flex flex-col justify-between shadow-sm">      
+    <aside className="h-screen w-64 bg-white dark:bg-gray-800 border-r dark:border-gray-700 flex flex-col justify-between shadow-sm">
+      
       {/* Top */}
       <div>
         {/* Logo */}
         <div className="px-6 py-4">
-          <h1 className="text-lg font-bold text-blue-600">
+          <h1 className="text-lg font-bold text-blue-600 dark:text-blue-400">
             Coraje S.A.S
           </h1>
-          <p className="text-xs text-gray-400">Farmacia principal</p>
+          <p className="text-xs text-gray-400 dark:text-gray-300">
+            Farmacia principal
+          </p>
         </div>
 
         {/* Menu */}
@@ -25,14 +28,14 @@ export default function Sidebar() {
       </div>
 
       {/* Bottom */}
-      <div className="p-4 border-t flex items-center justify-between">
+      <div className="p-4 border-t dark:border-gray-700 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
+          <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center text-blue-600 dark:text-blue-300 font-bold">
             S
           </div>
           <div>
-            <p className="text-sm font-semibold">Staff Principal</p>
-            <p className="text-xs text-gray-500">Ver perfil</p>
+            <p className="text-sm font-semibold dark:text-white">Staff Principal</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">Ver perfil</p>
           </div>
         </div>
 
@@ -40,7 +43,5 @@ export default function Sidebar() {
         <ThemeToggle />
       </div>
     </aside>
-
-    
   )
 }
