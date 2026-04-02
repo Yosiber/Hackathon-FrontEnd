@@ -1,10 +1,10 @@
 import { Home, ClipboardList, Bell, Package } from "lucide-react"
 import SidebarItem from "./SidebarItem"
+import ThemeToggle from "../themetoggle/ThemeToggle"
 
 export default function Sidebar() {
   return (
-    <aside className="h-screen w-64 bg-white border-r flex flex-col justify-between shadow-sm">
-      
+      <aside className="h-screen w-64 bg-white dark:bg-gray-800 border-r flex flex-col justify-between shadow-sm">      
       {/* Top */}
       <div>
         {/* Logo */}
@@ -25,7 +25,7 @@ export default function Sidebar() {
       </div>
 
       {/* Bottom */}
-      <div className="p-4 border-t">
+      <div className="p-4 border-t flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">
             S
@@ -35,7 +35,12 @@ export default function Sidebar() {
             <p className="text-xs text-gray-500">Ver perfil</p>
           </div>
         </div>
+
+        {/* Botón de cambiar tema */}
+        <ThemeToggle />
       </div>
     </aside>
+
+    
   )
 }

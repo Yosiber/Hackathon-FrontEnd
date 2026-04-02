@@ -1,9 +1,9 @@
-import { Bell, DownloadCloud, Search, Phone, CheckCircle } from "lucide-react"
+import { Bell, DownloadCloud, Search, Phone, CheckCircle, AlertTriangle, Truck } from "lucide-react"
 
 const stats = [
-  { label: "TICKETS PENDIENTES", value: 12, color: "border-blue-200" },
-  { label: "EN ATENCIÓN", value: 4, color: "border-yellow-200" },
-  { label: "COMPLETADOS HOY", value: 8, color: "border-green-200" },
+  { label: "TICKETS PENDIENTES", value: 12, color: "border-blue-400" },
+  { label: "EN ATENCIÓN", value: 4, color: "border-yellow-400" },
+  { label: "COMPLETADOS HOY", value: 8, color: "border-green-400" },
 ]
 
 const sampleTickets = [
@@ -32,21 +32,23 @@ const sampleTickets = [
 
 export default function Tickets() {
   return (
-    <main className="p-6 bg-gray-50 min-h-screen">
+    <main className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-4">
-          {/* Campanita arriba a la izquierda */}
           <button
             aria-label="Notificaciones"
-            className="p-2 rounded-md bg-white shadow-sm hover:bg-gray-100"
+            className="p-2 rounded-md bg-white dark:bg-gray-800 shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700"
           >
-            <Bell size={20} className="text-gray-600" />
+            <Bell size={20} className="text-gray-600 dark:text-gray-200" />
           </button>
-
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">Tickets de hoy — Sede Centro</h2>
-            <p className="text-sm text-gray-500">Lunes, 24 de Mayo · Turno Mañana</p>
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+              Tickets de hoy — Sede Centro
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Lunes, 24 de Mayo · Turno Mañana
+            </p>
           </div>
         </div>
 
@@ -54,11 +56,11 @@ export default function Tickets() {
           <div className="relative">
             <input
               placeholder="Buscar ticket o paciente..."
-              className="pl-10 pr-4 py-2 rounded-full border bg-white text-sm w-72"
+              className="pl-10 pr-4 py-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 outline-none w-72"
             />
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
           </div>
-          <button className="flex items-center gap-2 bg-white px-4 py-2 rounded-md shadow-sm">
+          <button className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700">
             <DownloadCloud size={16} />
             Descargar Reporte
           </button>
@@ -68,23 +70,28 @@ export default function Tickets() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         {stats.map((s) => (
-          <div key={s.label} className={`bg-white p-4 rounded-md shadow-sm border-l-4 ${s.color}`}>
-            <p className="text-xs text-gray-500">{s.label}</p>
-            <p className="text-2xl font-bold text-gray-800">{s.value}</p>
+          <div
+            key={s.label}
+            className={`bg-white dark:bg-gray-800 p-4 rounded-md shadow-sm border-l-4 ${s.color}`}
+          >
+            <p className="text-xs text-gray-500 dark:text-gray-400">{s.label}</p>
+            <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{s.value}</p>
           </div>
         ))}
       </div>
 
       {/* Table / Queue */}
-      <section className="bg-white rounded-lg shadow-sm p-6">
+      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-lg">Cola de Atención Activa</h3>
-          <div className="text-sm text-gray-400">• Pendiente &nbsp; • En Proceso</div>
+          <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-100">
+            Cola de Atención Activa
+          </h3>
+          <div className="text-sm text-gray-400 dark:text-gray-500">• Pendiente &nbsp; • En Proceso</div>
         </div>
 
         <table className="w-full table-auto text-left text-sm">
           <thead>
-            <tr className="text-xs text-gray-500 border-b">
+            <tr className="text-xs text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
               <th className="py-3 w-28"># TURNO</th>
               <th className="py-3">PACIENTE</th>
               <th className="py-3">MEDICAMENTOS SOLICITADOS</th>
@@ -95,35 +102,51 @@ export default function Tickets() {
           </thead>
           <tbody>
             {sampleTickets.map((t) => (
-              <tr key={t.turno} className="border-b last:border-b-0">
-                <td className="py-4 text-blue-600 font-semibold">{t.turno}</td>
+              <tr
+                key={t.turno}
+                className="border-b last:border-b-0 border-gray-100 dark:border-gray-700"
+              >
+                <td className="py-4 text-blue-600 dark:text-blue-400 font-semibold">{t.turno}</td>
                 <td className="py-4">
-                  <div className="font-medium">{t.paciente}</div>
-                  <div className="text-xs text-gray-400">ID: 4.392.102</div>
+                  <div className="font-medium text-gray-800 dark:text-gray-100">{t.paciente}</div>
+                  <div className="text-xs text-gray-400 dark:text-gray-500">ID: 4.392.102</div>
                 </td>
                 <td className="py-4">
                   <div className="flex flex-col gap-1">
                     {t.medicamentos.map((m) => (
-                      <span key={m} className="inline-block px-3 py-1 bg-gray-100 text-xs rounded-full">
+                      <span
+                        key={m}
+                        className="inline-block px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-xs rounded-full"
+                      >
                         {m}
                       </span>
                     ))}
                   </div>
                 </td>
                 <td className="py-4">
-                  <span className="inline-block px-3 py-1 bg-amber-100 text-amber-800 text-xs rounded-md">{t.disponibilidad}</span>
+                  <span className="inline-block px-3 py-1 bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-xs rounded-md">
+                    {t.disponibilidad}
+                  </span>
                 </td>
                 <td className="py-4">
-                  <span className={`text-xs px-3 py-1 rounded-full ${t.estado === "PENDIENTE" ? "bg-red-100 text-red-600" : t.estado === "EN ATENCIÓN" ? "bg-sky-100 text-sky-600" : "bg-green-100 text-green-600"}`}>
+                  <span
+                    className={`text-xs px-3 py-1 rounded-full ${
+                      t.estado === "PENDIENTE"
+                        ? "bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400"
+                        : t.estado === "EN ATENCIÓN"
+                        ? "bg-sky-100 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400"
+                        : "bg-green-100 dark:bg-green-900/40 text-green-600 dark:text-green-400"
+                    }`}
+                  >
                     {t.estado}
                   </span>
                 </td>
                 <td className="py-4">
                   <div className="flex items-center gap-2">
-                    <button className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm flex items-center gap-2">
+                    <button className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm flex items-center gap-2">
                       <Phone size={14} /> Llamar
                     </button>
-                    <button className="px-3 py-1 bg-gray-100 rounded-md text-sm flex items-center gap-2">
+                    <button className="px-3 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-md text-sm flex items-center gap-2">
                       <CheckCircle size={14} /> Atender
                     </button>
                   </div>
@@ -133,7 +156,98 @@ export default function Tickets() {
           </tbody>
         </table>
 
-        <div className="mt-4 text-sm text-gray-500">Mostrando 4 de 24 tickets registrados hoy</div>
+        <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
+          Mostrando 4 de 24 tickets registrados hoy
+        </div>
+      </section>
+
+      {/* Bottom section */}
+      <section className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Inventory alerts */}
+        <div className="md:col-span-2 space-y-4">
+          <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-100">
+            Alertas de Inventario Crítico
+          </h4>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex gap-4 items-start bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl shadow-sm">
+              <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400">
+                <AlertTriangle size={20} />
+              </div>
+              <div className="flex-1">
+                <div className="font-semibold text-gray-800 dark:text-gray-100">Insulina NPH</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Quedan solo 5 unidades en stock.
+                </div>
+                <div className="mt-3">
+                  <a className="text-sm text-blue-600 dark:text-blue-400 font-medium cursor-pointer">
+                    VER INVENTARIO
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex gap-4 items-start bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl shadow-sm">
+              <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+                <Truck size={20} />
+              </div>
+              <div className="flex-1">
+                <div className="font-semibold text-gray-800 dark:text-gray-100">Metformina 850mg</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Pedido en camino (ETA: 14:00h).
+                </div>
+                <div className="mt-3">
+                  <a className="text-sm text-blue-600 dark:text-blue-400 font-medium cursor-pointer">
+                    VER TRACKING
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Upcoming shifts */}
+        <aside className="bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 p-4 rounded-xl shadow-sm">
+          <h4 className="font-semibold text-gray-700 dark:text-gray-100">Próximos Turnos</h4>
+
+          <div className="mt-4 space-y-3">
+            <div className="flex items-center justify-between bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
+              <div className="flex items-start gap-3">
+                <div className="text-xs bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400 px-2 py-1 rounded-full font-medium">
+                  URGENTE
+                </div>
+                <div className="font-semibold text-gray-800 dark:text-gray-100">A-104 • Rosa Mendez</div>
+              </div>
+              <div className="text-sm text-gray-400 dark:text-gray-500">10:45</div>
+            </div>
+
+            <div className="flex items-center justify-between bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
+              <div className="flex items-start gap-3">
+                <div className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-full">
+                  REGULAR
+                </div>
+                <div className="font-semibold text-gray-800 dark:text-gray-100">B-205 • Pedro Pablo</div>
+              </div>
+              <div className="text-sm text-gray-400 dark:text-gray-500">10:52</div>
+            </div>
+
+            <div className="flex items-center justify-between bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
+              <div className="flex items-start gap-3">
+                <div className="text-xs bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-2 py-1 rounded-full">
+                  REGULAR
+                </div>
+                <div className="font-semibold text-gray-800 dark:text-gray-100">B-206 • Julia Sans</div>
+              </div>
+              <div className="text-sm text-gray-400 dark:text-gray-500">11:05</div>
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <button className="w-full text-sm py-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+              Ver Agenda Completa
+            </button>
+          </div>
+        </aside>
       </section>
     </main>
   )
