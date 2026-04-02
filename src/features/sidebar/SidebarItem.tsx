@@ -4,24 +4,27 @@ type Props = {
   icon: React.ReactNode
   label: string
   to: string
-  active?: boolean
+  active: boolean
+  changePage: (page: string) => void
+  page: string
 }
 
-export default function SidebarItem({ icon, label, to, active }: Props) {
+export default function SidebarItem({ icon, label, to, active, changePage, page }: Props) {
   return (
     <Link
       to={to}
       className={`
-        flex items-center gap-3 px-5 py-2.5 mx-2 rounded-lg cursor-pointer transition-all
+        flex items-center gap-3 px-5 py-2.5 mx-2 rounded-lg cursor-pointer transition-all duration-200
         ${
           active
-            ? "bg-blue-100 text-blue-600 font-medium"
-            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+            ? "text-green-700 bg-green-100 border-green-600 border-r-4 bg-green-50/50 rounded-xl"
+            : "text-gray-600 hover:bg-blue-50 hover:text-blue-500"
         }
       `}
+      onClick={() => changePage(page)}
     >
-      {icon}
-      <span className="text-sm">{label}</span>
+      <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
+      <span className="text-sm font-bold">{label}</span>
     </Link>
   )
 }
