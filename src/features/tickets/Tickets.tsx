@@ -88,6 +88,17 @@ export default function Tickets() {
     )
   }
 
+  const handleDescargarReporte = async () => {
+  const response = await fetch("/api/reporte-pdf");
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "reporte_tickets.pdf";
+  a.click();
+  };
+
   
 
   const handleCompletar = (ticket: Ticket) => {
@@ -140,7 +151,10 @@ export default function Tickets() {
         )}
         
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700">
+          <button
+            onClick={handleDescargarReporte}
+            className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700"
+          >
             <DownloadCloud size={16} />
             Descargar Reporte
           </button>
