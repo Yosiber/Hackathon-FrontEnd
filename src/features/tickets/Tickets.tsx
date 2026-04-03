@@ -1,4 +1,7 @@
 import { Bell, DownloadCloud, Search, Phone, CheckCircle, AlertTriangle, Truck } from "lucide-react"
+import { useState } from "react"
+import { Link } from "react-router-dom"
+
 
 const stats = [
   { label: "TICKETS PENDIENTES", value: 12, color: "border-blue-400" },
@@ -31,6 +34,14 @@ const sampleTickets = [
 ]
 
 export default function Tickets() {
+
+    const [search, setSearch] = useState("")
+
+    const filteredTickets = sampleTickets.filter((t) =>
+      t.turno.toLowerCase().includes(search.toLowerCase()) ||
+      t.paciente.toLowerCase().includes(search.toLowerCase())
+    );
+
   return (
     <main className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
       {/* Header */}
@@ -55,9 +66,11 @@ export default function Tickets() {
         <div className="flex items-center gap-3">
           <div className="relative">
             <input
-              placeholder="Buscar ticket o paciente..."
-              className="pl-10 pr-4 py-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 outline-none w-72"
-            />
+                  placeholder="Buscar Ticket O Paciente..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="pl-10 pr-4 py-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-700 dark:text-gray-200 w-72"
+                />
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
           </div>
           <button className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700">
@@ -101,7 +114,7 @@ export default function Tickets() {
             </tr>
           </thead>
           <tbody>
-            {sampleTickets.map((t) => (
+            {filteredTickets.map((t) => (
               <tr
                 key={t.turno}
                 className="border-b last:border-b-0 border-gray-100 dark:border-gray-700"
@@ -180,9 +193,10 @@ export default function Tickets() {
                   Quedan solo 5 unidades en stock.
                 </div>
                 <div className="mt-3">
-                  <a className="text-sm text-blue-600 dark:text-blue-400 font-medium cursor-pointer">
+      
+                  <Link to="/inventory" className="text-sm text-blue-600 dark:text-blue-400 font-medium cursor-pointer">
                     VER INVENTARIO
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
