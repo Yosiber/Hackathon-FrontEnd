@@ -6,7 +6,7 @@ import { useState } from "react";
 import ModalAtender from "./AttendModal";
 import type { Ticket } from "./AttendModal";
 import AgendaModal from "./ScheduleModal";
-
+import userMocks from "../../data/mock/users";
 
 
 const sampleTickets = [
@@ -128,12 +128,12 @@ export default function Tickets() {
       {/* Header */}
       <div className="flex items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-4">
-          <button
-            aria-label="Notificaciones"
-            className="p-2 rounded-md bg-white dark:bg-gray-800 shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700"
-          >
-            <Bell size={20} className="text-gray-600 dark:text-gray-200" />
-          </button>
+          <div className="p-2 rounded-md bg-white dark:bg-gray-800 shadow-sm">
+            <span className="material-symbols-outlined text-gray-600 dark:text-gray-200" 
+              style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>
+              confirmation_number
+            </span>
+          </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
               Tickets de hoy — Sede Centro
@@ -235,40 +235,58 @@ export default function Tickets() {
                     {t.estado}
                   </span>
                 </td>
-               <td className="py-4">
-                  <div className="flex items-center gap-2">
+                  <td className="py-4" colSpan={1}>
+                    {userMocks[0].roles.includes("admin") || userMocks[0].roles.includes("employee") ? (
+                      <div className="flex items-center gap-2">
+                        {/* LLAMAR */}
+                        <a
+                          href={`tel:+573001234567`}
+                          className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm flex items-center gap-2"
+                        >
+                          <Phone size={14} /> Llamar
+                        </a>
+                      </div>
+                    ) : userMocks[0].roles.includes("user") ? (
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        <button className="px- py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-md text-sm flex">
+                          solicitar ticket
+                        </button>
+                      </span>
+                    ) : (
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        No tienes permisos
+                      </span>
+                    )}
+                  </td>
 
-                    {/* LLAMAR */}
-                    <a
-                      href={`tel:+573001234567`}
-                      className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm flex items-center gap-2"
-                    >
-                      <Phone size={14} /> Llamar
-                    </a>
-                  </div>
-                </td>
-                <td>
-                  <button
-                      onClick={() => {
-                        setActiveTicket(t);
-                        setOpenModal(true);
-                      }}
-                      className="px-3 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-md text-sm flex items-center gap-2"
-                    >
-                      <CheckCircle size={14} /> Atender
-                    </button>
-                </td>
-                <td>
-                  {t.estado === "EN ATENCIÓN" && (
-                    <button
-                      onClick={() => handleCompletar(t)}
-                      className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm flex items-center gap-2"
-                    >
-                      <CheckCircle size={14} /> Completar
-                    </button>
-                  )}
-                </td>
+                  <td className="py-4">
+                    {(userMocks[0].roles.includes("admin") || userMocks[0].roles.includes("employee")) && (
+                      <button
+                        onClick={() => {
+                          setActiveTicket(t);
+                          setOpenModal(true);
+                        }}
+                        className="px-3 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-md text-sm flex items-center gap-2"
+                      >
+                        <CheckCircle size={14} /> Atender
+                      </button>
+                    )}
+                  </td>
+
+                  <td className="py-4">
+                    {(userMocks[0].roles.includes("admin") || userMocks[0].roles.includes("employee")) &&
+                      t.estado === "EN ATENCIÓN" && (
+                        <button
+                          onClick={() => handleCompletar(t)}
+                          className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm flex items-center gap-2"
+                        >
+                          <CheckCircle size={14} /> Completar
+                        </button>
+                      )}
+                  </td>
+
               </tr>
+
             ))}
           </tbody>
         </table>

@@ -150,15 +150,22 @@ export default function Inventary() {
 
   return (
     <main className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen text-gray-900 dark:text-gray-100">
-      <div className="max-w-6xl mx-auto">
-
+      <div>
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+           <div className="p-2 rounded-md bg-white dark:bg-gray-800 shadow-sm">
+              <span className="material-symbols-outlined text-gray-600 dark:text-gray-200" 
+               style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>
+               inventory_2
+              </span>
+             </div>
           <div>
-            <h1 className="text-2xl font-semibold">Inventario — Sede Centro</h1>
+            <h1 className="text-2xl font-bold">Inventario — Sede Centro</h1>
             <p className="text-sm text-gray-500 dark:text-gray-300">
               Control de suministros y gestión de existencias
             </p>
+          </div>
           </div>
           <div className="flex items-center gap-3">
             <div className="relative">
