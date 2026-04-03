@@ -10,7 +10,7 @@ export default function Sidebar() {
   const imageSrc = `data:image/png;base64,${usersMock[0].imageProfile}`;
 
   return (
-    <aside className="h-screen w-64 bg-white border-r border-gray-200 flex flex-col justify-between shadow-sm">
+    <aside className="h-screen w-64 bg-white border-r border-gray-200 flex flex-col justify-between shadow-sm flex-shrink-0 z-40">
       {/* Top */}
       <div>
         {/* Logo */}
