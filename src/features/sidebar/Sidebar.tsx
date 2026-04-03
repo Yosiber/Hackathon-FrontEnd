@@ -21,7 +21,7 @@ export default function Sidebar() {
         {/* Menu */}
         <nav className="mt-4 flex flex-col gap-1">
           <SidebarItem icon={<Home size={18} />} label="Dashboard" to="/" />
-          <SidebarItem icon={<Package size={18} />} label="Inventario" to="/inventario" />
+          <SidebarItem icon={<Package size={18} />} label="Inventary" to="/inventary" />
           <SidebarItem icon={<ClipboardList size={18} />} label="Tickets" to="/tickets" />
           <SidebarItem icon={<Bell size={18} />} label="Notificaciones" to="/notificaciones" />
         </nav>

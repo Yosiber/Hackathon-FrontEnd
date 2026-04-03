@@ -1,5 +1,6 @@
 import MainLayout from "./features/layouts/MainLayout"
 import Tickets from "./features/tickets/Tickets"
+import Inventary from "./features/inventary/Inventary"
 
 import './App.css'
 
@@ -11,6 +12,7 @@ function App() {
       <MainLayout>
         <Routes>
           <Route path="/tickets" element={<Tickets />} />
+          <Route path="/inventary" element={<Inventary />} />
         </Routes>
       </MainLayout>
     </BrowserRouter>
