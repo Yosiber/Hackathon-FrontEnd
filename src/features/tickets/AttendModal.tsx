@@ -4,6 +4,7 @@ export interface Ticket {
   turno: string;
   paciente: string;
   medicamentos: string[];
+  hora: string;
   disponibilidad: string;
   estado: string;
 }

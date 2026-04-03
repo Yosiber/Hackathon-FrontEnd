@@ -5,6 +5,7 @@ import { useSearch } from "../context/SearchContext";
 import { useState } from "react";
 import ModalAtender from "./AttendModal";
 import type { Ticket } from "./AttendModal";
+import AgendaModal from "./ScheduleModal";
 
 
 
@@ -12,6 +13,7 @@ const sampleTickets = [
   {
     turno: "A-101",
     paciente: "Carlos Gomez",
+    hora: "08:30",
     medicamentos: ["Metformina 850mg", "Ibuprofeno 400mg", "Insulina NPH"],
     disponibilidad: "2 de 3 disponibles",
     estado: "PENDIENTE",
@@ -19,6 +21,7 @@ const sampleTickets = [
   {
     turno: "B-202",
     paciente: "Ana Rosa",
+    hora: "09:00",
     medicamentos: ["Amoxicilina 500mg", "Paracetamol 1g"],
     disponibilidad: "2 de 2 disponibles",
     estado: "EN ATENCIÓN",
@@ -26,11 +29,20 @@ const sampleTickets = [
   {
     turno: "C-085",
     paciente: "Luis Mendez",
+    hora: "09:30",
     medicamentos: ["Loratadina 10mg"],
     disponibilidad: "1 de 1 disponible",
     estado: "COMPLETADO",
   },
-]
+  {
+    turno: "D-110",
+    paciente: "Marta Suarez",
+    hora: "10:15",
+    medicamentos: ["Ibuprofeno 400mg"],
+    disponibilidad: "1 de 1 disponible",
+    estado: "PENDIENTE",
+  },
+];
 
 const contarTicketsPorEstado = (tickets: Ticket[]) => {
   return {
@@ -49,7 +61,7 @@ export default function Tickets() {
     const [activeTicket, setActiveTicket] = useState<Ticket | null>(null);
     const estadoCounts = contarTicketsPorEstado(tickets);
     const [mensaje, setMensaje] = useState("");
-
+    const [openAgenda, setOpenAgenda] = useState(false);
 
     const stats = [
       { label: "TICKETS PENDIENTES", value: estadoCounts.PENDIENTE, color: "border-blue-400" },
@@ -335,9 +347,12 @@ export default function Tickets() {
           </div>
 
           <div className="mt-4">
-            <button className="w-full text-sm py-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-              Ver Agenda Completa
-            </button>
+            <button
+                className="w-full text-sm py-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                onClick={() => setOpenAgenda(true)}
+              >
+                Ver Agenda Completa
+              </button>
           </div>
         </aside>
       </section>
@@ -348,6 +363,12 @@ export default function Tickets() {
           ticket={activeTicket}
           onConfirm={handleConfirmAtender}
         />
+       <AgendaModal
+          open={openAgenda}
+          onClose={() => setOpenAgenda(false)}
+          tickets={tickets}
+        />
+
     </main>
   )
 
