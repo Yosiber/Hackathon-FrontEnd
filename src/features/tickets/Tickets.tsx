@@ -2,14 +2,11 @@ import { Bell, DownloadCloud, Search, Phone, CheckCircle, AlertTriangle, Truck }
 import { useEffect } from "react";
 import { Link } from "react-router-dom"
 import { useSearch } from "../context/SearchContext";
+import { useState } from "react";
+import ModalAtender from "./AttendModal";
+import type { Ticket } from "./AttendModal";
 
 
-
-const stats = [
-  { label: "TICKETS PENDIENTES", value: 12, color: "border-blue-400" },
-  { label: "EN ATENCIÓN", value: 4, color: "border-yellow-400" },
-  { label: "COMPLETADOS HOY", value: 8, color: "border-green-400" },
-]
 
 const sampleTickets = [
   {
@@ -35,21 +32,74 @@ const sampleTickets = [
   },
 ]
 
-export default function Tickets() {
+const contarTicketsPorEstado = (tickets: Ticket[]) => {
+  return {
+    PENDIENTE: tickets.filter(t => t.estado === "PENDIENTE").length,
+    "EN ATENCIÓN": tickets.filter(t => t.estado === "EN ATENCIÓN").length,
+    COMPLETADO: tickets.filter(t => t.estado === "COMPLETADO").length,
+  };
+};
 
+export default function Tickets() {
+  
     const { search } = useSearch();
     const { setPlaceholder } = useSearch();
+    const [tickets, setTickets] = useState(sampleTickets);
+    const [openModal, setOpenModal] = useState(false);
+    const [activeTicket, setActiveTicket] = useState<Ticket | null>(null);
+    const estadoCounts = contarTicketsPorEstado(tickets);
+    const [mensaje, setMensaje] = useState("");
 
 
-    const filteredTickets = sampleTickets.filter((t) =>
+    const stats = [
+      { label: "TICKETS PENDIENTES", value: estadoCounts.PENDIENTE, color: "border-blue-400" },
+      { label: "EN ATENCIÓN", value: estadoCounts["EN ATENCIÓN"], color: "border-yellow-400" },
+      { label: "COMPLETADOS HOY", value: estadoCounts.COMPLETADO, color: "border-green-400" },
+    ];
+
+      const filteredTickets = tickets.filter((t) =>
       t.turno.toLowerCase().includes(search.toLowerCase()) ||
       t.paciente.toLowerCase().includes(search.toLowerCase())
     );
     
     useEffect(() => {
-     setPlaceholder("Buscar turno o paciente...");
-    }, []);
+     setPlaceholder("Buscar turno o paciente...")
+    }, [])
 
+    const handleConfirmAtender = (ticket: Ticket) => {
+  setTickets((prev) =>
+    prev.map((t) =>
+      t.turno === ticket.turno
+        ? { ...t, estado: "EN ATENCIÓN" }
+        : t
+    )
+    )
+  }
+
+  
+
+  const handleCompletar = (ticket: Ticket) => {
+  const match = new RegExp(/(\d+)\s+de\s+(\d+)/).exec(ticket.disponibilidad);
+  if (!match) return; 
+
+  const disponibles = Number.parseInt(match[1], 10);
+  const requeridos = Number.parseInt(match[2], 10);
+
+  if (disponibles === requeridos) {
+    
+    setTickets(prev =>
+      prev.map(t =>
+        t.turno === ticket.turno
+          ? { ...t, estado: "COMPLETADO" }
+          : t
+      )
+    );
+    } else {
+      setMensaje("No se puede completar: no todos los medicamentos están disponibles.");
+          setTimeout(() => setMensaje(""), 3000);
+        }
+    }
+  
   return (
     <main className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
       {/* Header */}
@@ -70,7 +120,13 @@ export default function Tickets() {
             </p>
           </div>
         </div>
-
+        
+        {mensaje && (
+          <div className="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow-lg">
+            {mensaje}
+          </div>
+        )}
+        
         <div className="flex items-center gap-3">
           <button className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700">
             <DownloadCloud size={16} />
@@ -103,7 +159,7 @@ export default function Tickets() {
 
         <table className="w-full table-auto text-left text-sm">
           <thead>
-            <tr className="text-xs text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+            <tr className="text-xs text-gray-500 text-center dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
               <th className="py-3 w-28"># TURNO</th>
               <th className="py-3">PACIENTE</th>
               <th className="py-3">MEDICAMENTOS SOLICITADOS</th>
@@ -112,7 +168,7 @@ export default function Tickets() {
               <th className="py-3">ACCIÓN</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-center">
             {filteredTickets.map((t) => (
               <tr
                 key={t.turno}
@@ -153,15 +209,38 @@ export default function Tickets() {
                     {t.estado}
                   </span>
                 </td>
-                <td className="py-4">
+               <td className="py-4">
                   <div className="flex items-center gap-2">
-                    <button className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm flex items-center gap-2">
+
+                    {/* LLAMAR */}
+                    <a
+                      href={`tel:+573001234567`}
+                      className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm flex items-center gap-2"
+                    >
                       <Phone size={14} /> Llamar
-                    </button>
-                    <button className="px-3 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-md text-sm flex items-center gap-2">
+                    </a>
+                  </div>
+                </td>
+                <td>
+                  <button
+                      onClick={() => {
+                        setActiveTicket(t);
+                        setOpenModal(true);
+                      }}
+                      className="px-3 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-md text-sm flex items-center gap-2"
+                    >
                       <CheckCircle size={14} /> Atender
                     </button>
-                  </div>
+                </td>
+                <td>
+                  {t.estado === "EN ATENCIÓN" && (
+                    <button
+                      onClick={() => handleCompletar(t)}
+                      className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm flex items-center gap-2"
+                    >
+                      <CheckCircle size={14} /> Completar
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
@@ -262,6 +341,14 @@ export default function Tickets() {
           </div>
         </aside>
       </section>
+
+       <ModalAtender
+          open={openModal}
+          onClose={() => setOpenModal(false)}
+          ticket={activeTicket}
+          onConfirm={handleConfirmAtender}
+        />
     </main>
   )
+
 }
