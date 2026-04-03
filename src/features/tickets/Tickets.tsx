@@ -1,6 +1,8 @@
 import { Bell, DownloadCloud, Search, Phone, CheckCircle, AlertTriangle, Truck } from "lucide-react"
-import { useState } from "react"
+import { useEffect } from "react";
 import { Link } from "react-router-dom"
+import { useSearch } from "../context/SearchContext";
+
 
 
 const stats = [
@@ -35,12 +37,18 @@ const sampleTickets = [
 
 export default function Tickets() {
 
-    const [search, setSearch] = useState("")
+    const { search } = useSearch();
+    const { setPlaceholder } = useSearch();
+
 
     const filteredTickets = sampleTickets.filter((t) =>
       t.turno.toLowerCase().includes(search.toLowerCase()) ||
       t.paciente.toLowerCase().includes(search.toLowerCase())
     );
+    
+    useEffect(() => {
+     setPlaceholder("Buscar turno o paciente...");
+    }, []);
 
   return (
     <main className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
@@ -64,15 +72,6 @@ export default function Tickets() {
         </div>
 
         <div className="flex items-center gap-3">
-          <div className="relative">
-            <input
-                  placeholder="Buscar Ticket O Paciente..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10 pr-4 py-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-700 dark:text-gray-200 w-72"
-                />
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
-          </div>
           <button className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700">
             <DownloadCloud size={16} />
             Descargar Reporte

@@ -3,6 +3,7 @@ import usersMock from "../../data/mock/users";
 import { useState } from "react";
 import ThemeToggle from "../themetoggle/ThemeToggle"
 
+
 export default function Sidebar() {
 
   const [actualPage, setActualPage] = useState("dashboard");
@@ -23,6 +24,8 @@ export default function Sidebar() {
               <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest dark:text-gray-300">Centro de Servicio</h2>
           </div>
         </div>
+
+        
 
         {/* Menu */}
         <nav className="mt-4 flex flex-col gap-1">

@@ -1,6 +1,9 @@
 import { Search, Settings } from "lucide-react"
 import { useState } from "react"
 import ArrivalModal from "./ArrivalModal"
+import { useSearch } from "../context/SearchContext";
+import { useEffect } from "react";
+
 
 type Med = {
   name: string
@@ -64,10 +67,17 @@ export default function Inventary() {
   const [open, setOpen] = useState(false)
   const [selectedMed, setSelectedMed] = useState<Med | null>(null)
   const [data, setData] = useState<Med[]>(initialMeds)
-  const [search, setSearch] = useState("")
+  const { search } = useSearch();
   const [sort, setSort] = useState("none")
   const [showSort, setShowSort] = useState(false)
+  const { setPlaceholder } = useSearch();
 
+
+    useEffect(() => {
+      setPlaceholder("Buscar medicamento...");
+    }, []);
+
+  
   const updateStock = (amount: number) => {
     if (!selectedMed) return
     setData((prev) =>
@@ -98,7 +108,6 @@ export default function Inventary() {
     return matchesSearch && matchesFilter
   })
 
-  // 🔥 ORDENAR SEGÚN LA OPCIÓN SELECCIONADA
   if (sort === "name") {
     filtered.sort((a, b) => a.name.localeCompare(b.name))
   }
@@ -153,20 +162,13 @@ export default function Inventary() {
           </div>
           <div className="flex items-center gap-3">
             <div className="relative">
-              <input
-                  placeholder="Buscar medicamento..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-10 pr-4 py-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-700 dark:text-gray-200 w-72"
-                />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-300" size={16} />
-            </div>
-            <div className="relative">
             <button
               className="p-2 rounded-md bg-white dark:bg-gray-800 shadow-sm"
               onClick={() => setShowSort(!showSort)}
             >
-              <Settings size={16} className="text-gray-600 dark:text-gray-200" />
+            <span className="text-gray-600 dark:text-gray-200">
+              Filtros avanzados
+            </span>
             </button>
                 {showSort && (
                   <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-md p-2 text-sm">
