@@ -1,4 +1,3 @@
-
 const userMocks = [
     {
         name: "Nolan Grayson",
