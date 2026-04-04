@@ -1,14 +1,16 @@
 import SidebarItem from "./SidebarItem";
-import usersMock from "../../data/mock/users";
 import { useState } from "react";
 import ThemeToggle from "../themetoggle/ThemeToggle"
-
+import { useUser } from "../context/UserContext";
+import { Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 export default function Sidebar() {
 
-  const [actualPage, setActualPage] = useState("dashboard");
+  const location = useLocation();
+  const { user } = useUser();
 
-  const imageSrc = `data:image/png;base64,${usersMock[0].imageProfile}`;
+  const imageSrc = `data:image/png;base64,${user.imageProfile}`;
 
   return (
     <aside className="sticky top-0 h-screen w-64 bg-white border-r border-gray-200 flex flex-col justify-between shadow-sm flex-shrink-0 z-40 dark:border-gray-700 dark:bg-gray-800">
@@ -29,10 +31,10 @@ export default function Sidebar() {
 
         {/* Menu */}
         <nav className="mt-4 flex flex-col gap-1">
-          <SidebarItem icon="dashboard" label="Dashboard" to="/" active={actualPage === "dashboard"} changePage={setActualPage} page="dashboard" />
-          <SidebarItem icon="inventory_2" label="Inventario" to="/inventory" active={actualPage === "inventory"} changePage={setActualPage} page="inventory" />
-          <SidebarItem icon="confirmation_number" label="Tickets" to="/tickets" active={actualPage === "tickets"} changePage={setActualPage} page="tickets" />
-          <SidebarItem icon="notifications" label="Notificaciones" to="/notifications" active={actualPage === "notifications"} changePage={setActualPage} page="notifications" />
+          <SidebarItem icon="dashboard" label="Dashboard" to="/" active={location.pathname === "/"} />
+          <SidebarItem icon="inventory_2" label="Inventario" to="/inventory" active={location.pathname === "/inventory"} />
+          <SidebarItem icon="confirmation_number" label="Tickets" to="/tickets" active={location.pathname === "/tickets"} />
+          <SidebarItem icon="notifications" label="Notificaciones" to="/notifications" active={location.pathname === "/notifications"} />
         </nav>
 
       </div>
@@ -50,7 +52,9 @@ export default function Sidebar() {
             </div>
             <div>
               <p className="text-sm font-semibold dark:text-white">Staff Principal</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Ver perfil</p>
+              <Link to="/profile" className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 ">
+                Ver perfil
+              </Link>
             </div>
           </div>
         </div>
