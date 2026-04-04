@@ -38,6 +38,8 @@
 *::-webkit-scrollbar-thumb {
   background-color: transparent;
   border-radius: 0;
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
