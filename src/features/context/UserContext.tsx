@@ -1,24 +1,36 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
-import usersMock from '../../data/mock/users';
+import { createContext, useContext, useState, type ReactNode } from "react";
+import usersMock from "../../data/mock/users";
 
 interface User {
   name: string;
-  email?: string;
   imageProfile: string;
+  role: string;
+  sede: string;
+  turno: string;
+  email: string;
 }
 
 interface UserContextType {
   user: User;
-  updateImage: (image: string) => void;
+  updateImage: (base64: string) => void;
 }
 
-const UserContext = createContext<UserContextType | undefined>(undefined);
+const UserContext = createContext<UserContextType | null>(null);
 
-export const UserProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User>(usersMock[0]);
+const initialUser: User = {
+  name: usersMock[0].name,
+  imageProfile: usersMock[0].imageProfile,
+  role: "Staff Principal",
+  sede: "Sede Centro",
+  turno: "Mañana",
+  email: "staff@drogueria.com",
+};
 
-  const updateImage = (image: string) => {
-    setUser(prev => ({ ...prev, imageProfile: image }));
+export function UserProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User>(initialUser);
+
+  const updateImage = (base64: string) => {
+    setUser((prev) => ({ ...prev, imageProfile: base64 }));
   };
 
   return (
@@ -26,12 +38,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </UserContext.Provider>
   );
-};
+}
 
-export const useUser = () => {
-  const context = useContext(UserContext);
-  if (!context) {
-    throw new Error('useUser must be used within a UserProvider');
-  }
-  return context;
-};
+export function useUser() {
+  const ctx = useContext(UserContext);
+  if (!ctx) throw new Error("useUser debe usarse dentro de UserProvider");
+  return ctx;
+}

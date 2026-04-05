@@ -62,6 +62,19 @@ function Badge({ status }: { status: string }) {
   return <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-medium">AGOTADO</span>
 }
 
+const mapStatus = (status: string) => {
+  switch (status) {
+    case "active":
+      return "DISPONIBLE";
+    case "low-stock":
+      return "BAJO STOCK";
+    case "out-of-stock":
+      return "AGOTADO";
+    default:
+      return "DISPONIBLE";
+  }
+};
+
 export default function Inventary() {
   const [filter, setFilter] = useState("TODOS")
   const [open, setOpen] = useState(false)
@@ -130,6 +143,33 @@ export default function Inventary() {
     filtered.sort((a, b) => order[a.status] - order[b.status])
   }
 
+    useEffect(() => {
+    const fetchMeds = async () => {
+      try {
+        const res = await fetch("https://coraje.server.daisyflows.top/medications");
+        const json = await res.json();
+       
+        console.log("BACKEND DATA:", json);
+
+        const mapped = json.items.map((m: any) => ({
+                name: m.name,
+                brand: m.laboratory,
+                presentation: m.presentation,
+                stock: m.stock,
+                min: m.minStock,
+                status: mapStatus(m.status),
+                eta: "--"
+          }));
+
+        setData(mapped);
+
+      } catch (err) {
+        console.error("Error trayendo medicamentos:", err);
+      }
+    };
+
+    fetchMeds();
+  }, []);
   
 
   const filterBtn = (label: string, value: string) => (

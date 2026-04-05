@@ -1,7 +1,7 @@
 import MainLayout from "./features/layouts/MainLayout"
 import Tickets from "./features/tickets/Tickets"
 import Dashboard from "./features/dashboard/Dashboard"
-import Inventory from "./features/inventary/Inventory"
+import Inventory from "./features/inventory/Inventory"
 import Notifications from "./features/notification/Notifications"
 import { SearchProvider } from "./features/context/SearchContext"
 import { NotificationsProvider } from "./features/context/NotificationsContext"
