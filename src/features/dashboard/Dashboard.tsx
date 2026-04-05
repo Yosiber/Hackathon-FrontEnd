@@ -180,16 +180,16 @@ export default function Dashboard() {
                             console.log(product.name, hasShipmentDate, daysForShipment);
 
                         return (
-                            <div key={index} className={`rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 hover:shadow-lg transition-all duration-300 group border-l-4 shadow-sm bg-white/80 dark:bg-gray-800
+                            <div className={`rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 hover:shadow-lg transition-all duration-300 group border-l-4 shadow-sm bg-white/80 dark:bg-gray-800
                                 ${product.status === "active" ? "border-green-600" : (hasShipmentDate ? "border-orange-400/80" : "border-gray-500")}`}>
                                 <div className="flex items-center gap-6 flex-1">
                                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-secondary
-                                        ${product.status === "active" ? "bg-green-400/20 text-green-700" : (hasShipmentDate ? "bg-orange-400/20 text-orange-400" : "bg-gray-400/20 text-gray-700")}`}>
+                                        ${product.status === "active" ? "bg-green-400/20 text-green-700" : (hasShipmentDate ? "bg-orange-400/20 text-orange-400" : "bg-gray-400/20 text-gray-700 dark:text-gray-400")}`}>
                                         <span className="material-symbols-outlined !text-3xl" style={{ fontVariationSettings: "'FILL' 1" }}>pill</span>
                                     </div>
                                     <div>
                                         <h4 className={`text-xl font-bold dark:text-gray-100 transition duration-300
-                                            ${product.status === "active" ? "group-hover:text-green-700" : (hasShipmentDate ? "group-hover:text-orange-400" : "group-hover:text-gray-700")}`}>
+                                            ${product.status === "active" ? "group-hover:text-green-700" : (hasShipmentDate ? "group-hover:text-orange-400" : "group-hover:text-gray-600 dark:group-hover:text-gray-400")}`}>
                                             {product.name}
                                         </h4>
                                         <p className="font-medium text-gray-500 dark:text-gray-400">{product.dose} • {product.presentation}</p>
@@ -198,7 +198,7 @@ export default function Dashboard() {
                                 <div className="flex flex-col md:flex-row items-start md:items-center gap-8 md:gap-12 flex-[2]">
                                     <div className="min-w-[140px]">
                                         <span className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase
-                                            ${product.status === "active" ? "bg-green-400/20 text-green-700" : (hasShipmentDate ? "bg-orange-400/20 text-orange-400" : "bg-gray-400/20 text-gray-700")}`}>
+                                            ${product.status === "active" ? "bg-green-400/20 text-green-700" : (hasShipmentDate ? "bg-orange-400/20 text-orange-400" : "bg-gray-400/20 text-gray-700 dark:text-gray-300")}`}>
                                             {product.status === "active" ? "Disponible" : "En Reposición"}
                                         </span>
                                     </div>
@@ -214,7 +214,7 @@ export default function Dashboard() {
                                     </div>
                                 </div>
                                 <button className={`px-6 py-3 rounded-2xl bg-gray-200 font-bold text-sm hover:cursor-pointer  transition-all duration-300
-                                    ${product.status === "active" ? "hover:bg-green-400/20 hover:text-green-700" : (hasShipmentDate ? "hover:bg-orange-400/20 hover:text-orange-400" : "hover:bg-gray-400/20 hover:text-gray-700")}`}>
+                                    ${product.status === "active" ? "hover:bg-green-400/20 hover:text-green-700" : (hasShipmentDate ? "hover:bg-orange-400/20 hover:text-orange-400" : "hover:bg-gray-400/20 hover:text-gray-700 dark:hover:bg-gray-400/20 dark:hover:text-gray-400")}`}>
                                     Ver detalles
                                 </button>
                             </div>
