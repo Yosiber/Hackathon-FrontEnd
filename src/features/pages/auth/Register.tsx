@@ -3,7 +3,9 @@ import type { z } from "zod";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "../../schemas/user.schema";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import ErrorAlert from "../../components/form/ErrorAlert";
+import { getFirstFormError } from "../../assets/scripts/getFirstFormError";
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
@@ -12,14 +14,15 @@ export default function Register() {
 
     const [ showPassword, setShowPassword ] = useState(false);
 
-    const { register, handleSubmit, formState: { errors }, reset } = useForm({
+    const { register, handleSubmit, formState: { errors, isSubmitted }, reset } = useForm({
         resolver: zodResolver(registerSchema)
     });
 
     const onSubmit = async (data: RegisterFormValues) => {
         try {
-            let success = false;
+            const success = false;
             {/**success = await signUp({ ...data, role: "usuario" })*/}
+            console.log(data);
             if (success) {
                 console.log("Registro exitoso");
                 reset();
@@ -29,8 +32,13 @@ export default function Register() {
         }
     }
 
+    const errorMessage = getFirstFormError(errors);
+
     return (
         <main className="min-h-screen w-full flex items-center justify-center relative p-6 md:p-12">
+            {isSubmitted && errorMessage && (
+                <ErrorAlert key={errorMessage} message={errorMessage} status="error" />
+            )}
             <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-[2.5rem] overflow-hidden shadow-2xl shadow-blue-900/10 relative z-10 border-none">
                 <div className="hidden lg:flex flex-col justify-between p-12 bg-gray-100 relative overflow-hidden">
                     <div className="relative z-10">
@@ -96,7 +104,7 @@ export default function Register() {
                         <div className="relative group">
                             <label className="block text-xs font-bold uppercase tracking-widest mb-2 px-1">Tipo de Documento</label>
                             <div className={`relative border-b-2 ${errors.documentType ? "border-red-600" : "focus-within:border-blue-700"} transition-all`}>
-                                <select className="w-full bg-transparent border-0 py-3 px-1 font-medium text-lg appearance-none focus:outline-none">
+                                <select className="w-full bg-transparent border-0 py-3 px-1 font-medium text-lg appearance-none focus:outline-none" {...register("documentType")}>
                                     <option value="CEDULA" >Cedula Ciudadania</option>
                                     <option value="TARJETA_IDENTIDAD" >Tarjeta de Identidad</option>
                                     <option value="CEDULA_EXTRANJERIA" >Cedula Extranjeria</option>
@@ -137,7 +145,8 @@ export default function Register() {
                             </div>
                         </div>
                         <div className="md:col-span-1 flex flex-col md:flex-row items-center gap-6">
-                            <button className="text-gray-100 font-bold px-12 py-2 rounded-xl text-lg flex items-center gap-3 shadow-lg hover:scale-[1.02] hover:cursor-pointer transition-transform w-full md:w-auto" style={{background: "linear-gradient(135deg, #005dac 0%, #1976d2 100%)"}}>
+                            <button className="text-gray-100 font-bold px-12 py-2 rounded-xl text-lg flex items-center gap-3 shadow-lg hover:scale-[1.02] hover:cursor-pointer transition-transform w-full md:w-auto" style={{background: "linear-gradient(135deg, #005dac 0%, #1976d2 100%)"}}
+                            >
                                 Completar Registro
                             </button>
                         </div>
