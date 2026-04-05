@@ -1,15 +1,13 @@
-import { Link } from "react-router-dom"
+import { Link } from "react-router-dom";
 
 type Props = {
   icon: React.ReactNode
   label: string
   to: string
   active: boolean
-  changePage: (page: string) => void
-  page: string
 }
 
-export default function SidebarItem({ icon, label, to, active, changePage, page }: Props) {
+export default function SidebarItem({ icon, label, to, active }: Props) {
   return (
     <Link
       to={to}
@@ -21,7 +19,6 @@ export default function SidebarItem({ icon, label, to, active, changePage, page 
             : "text-gray-600 hover:bg-blue-50 hover:text-blue-500 dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-white"
         }
       `}
-      onClick={() => changePage(page)}
     >
       <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>{icon}</span>
       <span className="text-sm font-bold">{label}</span>

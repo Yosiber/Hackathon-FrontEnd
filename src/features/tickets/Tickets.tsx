@@ -1,15 +1,19 @@
 import { Bell, DownloadCloud, Search, Phone, CheckCircle, AlertTriangle, Truck } from "lucide-react"
+import { useEffect } from "react";
+import { Link } from "react-router-dom"
+import { useSearch } from "../context/SearchContext";
+import { useState } from "react";
+import ModalAtender from "./AttendModal";
+import type { Ticket } from "./AttendModal";
+import AgendaModal from "./ScheduleModal";
+import userMocks from "../../data/mock/users";
 
-const stats = [
-  { label: "TICKETS PENDIENTES", value: 12, color: "border-blue-400" },
-  { label: "EN ATENCIÓN", value: 4, color: "border-yellow-400" },
-  { label: "COMPLETADOS HOY", value: 8, color: "border-green-400" },
-]
 
 const sampleTickets = [
   {
     turno: "A-101",
     paciente: "Carlos Gomez",
+    hora: "08:30",
     medicamentos: ["Metformina 850mg", "Ibuprofeno 400mg", "Insulina NPH"],
     disponibilidad: "2 de 3 disponibles",
     estado: "PENDIENTE",
@@ -17,6 +21,7 @@ const sampleTickets = [
   {
     turno: "B-202",
     paciente: "Ana Rosa",
+    hora: "09:00",
     medicamentos: ["Amoxicilina 500mg", "Paracetamol 1g"],
     disponibilidad: "2 de 2 disponibles",
     estado: "EN ATENCIÓN",
@@ -24,24 +29,111 @@ const sampleTickets = [
   {
     turno: "C-085",
     paciente: "Luis Mendez",
+    hora: "09:30",
     medicamentos: ["Loratadina 10mg"],
     disponibilidad: "1 de 1 disponible",
     estado: "COMPLETADO",
   },
-]
+  {
+    turno: "D-110",
+    paciente: "Marta Suarez",
+    hora: "10:15",
+    medicamentos: ["Ibuprofeno 400mg"],
+    disponibilidad: "1 de 1 disponible",
+    estado: "PENDIENTE",
+  },
+];
+
+const contarTicketsPorEstado = (tickets: Ticket[]) => {
+  return {
+    PENDIENTE: tickets.filter(t => t.estado === "PENDIENTE").length,
+    "EN ATENCIÓN": tickets.filter(t => t.estado === "EN ATENCIÓN").length,
+    COMPLETADO: tickets.filter(t => t.estado === "COMPLETADO").length,
+  };
+};
 
 export default function Tickets() {
+  
+    const { search } = useSearch();
+    const { setPlaceholder } = useSearch();
+    const [tickets, setTickets] = useState(sampleTickets);
+    const [openModal, setOpenModal] = useState(false);
+    const [activeTicket, setActiveTicket] = useState<Ticket | null>(null);
+    const estadoCounts = contarTicketsPorEstado(tickets);
+    const [mensaje, setMensaje] = useState("");
+    const [openAgenda, setOpenAgenda] = useState(false);
+
+    const stats = [
+      { label: "TICKETS PENDIENTES", value: estadoCounts.PENDIENTE, color: "border-blue-400" },
+      { label: "EN ATENCIÓN", value: estadoCounts["EN ATENCIÓN"], color: "border-yellow-400" },
+      { label: "COMPLETADOS HOY", value: estadoCounts.COMPLETADO, color: "border-green-400" },
+    ];
+
+      const filteredTickets = tickets.filter((t) =>
+      t.turno.toLowerCase().includes(search.toLowerCase()) ||
+      t.paciente.toLowerCase().includes(search.toLowerCase())
+    );
+    
+    useEffect(() => {
+     setPlaceholder("Buscar turno o paciente...")
+    }, [])
+
+    const handleConfirmAtender = (ticket: Ticket) => {
+  setTickets((prev) =>
+    prev.map((t) =>
+      t.turno === ticket.turno
+        ? { ...t, estado: "EN ATENCIÓN" }
+        : t
+    )
+    )
+  }
+
+  const handleDescargarReporte = async () => {
+  const response = await fetch("/api/reporte-pdf");
+  const blob = await response.blob();
+  const url = window.URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "reporte_tickets.pdf";
+  a.click();
+  };
+
+  
+
+  const handleCompletar = (ticket: Ticket) => {
+  const match = new RegExp(/(\d+)\s+de\s+(\d+)/).exec(ticket.disponibilidad);
+  if (!match) return; 
+
+  const disponibles = Number.parseInt(match[1], 10);
+  const requeridos = Number.parseInt(match[2], 10);
+
+  if (disponibles === requeridos) {
+    
+    setTickets(prev =>
+      prev.map(t =>
+        t.turno === ticket.turno
+          ? { ...t, estado: "COMPLETADO" }
+          : t
+      )
+    );
+    } else {
+      setMensaje("No se puede completar: no todos los medicamentos están disponibles.");
+          setTimeout(() => setMensaje(""), 3000);
+        }
+    }
+  
   return (
     <main className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
       {/* Header */}
       <div className="flex items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-4">
-          <button
-            aria-label="Notificaciones"
-            className="p-2 rounded-md bg-white dark:bg-gray-800 shadow-sm hover:bg-gray-100 dark:hover:bg-gray-700"
-          >
-            <Bell size={20} className="text-gray-600 dark:text-gray-200" />
-          </button>
+          <div className="p-2 rounded-md bg-white dark:bg-gray-800 shadow-sm">
+            <span className="material-symbols-outlined text-gray-600 dark:text-gray-200" 
+              style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>
+              confirmation_number
+            </span>
+          </div>
           <div>
             <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
               Tickets de hoy — Sede Centro
@@ -51,16 +143,18 @@ export default function Tickets() {
             </p>
           </div>
         </div>
-
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <input
-              placeholder="Buscar ticket o paciente..."
-              className="pl-10 pr-4 py-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-700 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 outline-none w-72"
-            />
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500" />
+        
+        {mensaje && (
+          <div className="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow-lg">
+            {mensaje}
           </div>
-          <button className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700">
+        )}
+        
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleDescargarReporte}
+            className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700"
+          >
             <DownloadCloud size={16} />
             Descargar Reporte
           </button>
@@ -91,7 +185,7 @@ export default function Tickets() {
 
         <table className="w-full table-auto text-left text-sm">
           <thead>
-            <tr className="text-xs text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
+            <tr className="text-xs text-gray-500 text-center dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
               <th className="py-3 w-28"># TURNO</th>
               <th className="py-3">PACIENTE</th>
               <th className="py-3">MEDICAMENTOS SOLICITADOS</th>
@@ -100,8 +194,8 @@ export default function Tickets() {
               <th className="py-3">ACCIÓN</th>
             </tr>
           </thead>
-          <tbody>
-            {sampleTickets.map((t) => (
+          <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-center">
+            {filteredTickets.map((t) => (
               <tr
                 key={t.turno}
                 className="border-b last:border-b-0 border-gray-100 dark:border-gray-700"
@@ -141,17 +235,58 @@ export default function Tickets() {
                     {t.estado}
                   </span>
                 </td>
-                <td className="py-4">
-                  <div className="flex items-center gap-2">
-                    <button className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm flex items-center gap-2">
-                      <Phone size={14} /> Llamar
-                    </button>
-                    <button className="px-3 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-md text-sm flex items-center gap-2">
-                      <CheckCircle size={14} /> Atender
-                    </button>
-                  </div>
-                </td>
+                  <td className="py-4" colSpan={1}>
+                    {userMocks[0].roles.includes("admin") || userMocks[0].roles.includes("employee") ? (
+                      <div className="flex items-center gap-2">
+                        {/* LLAMAR */}
+                        <a
+                          href={`tel:+573001234567`}
+                          className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm flex items-center gap-2"
+                        >
+                          <Phone size={14} /> Llamar
+                        </a>
+                      </div>
+                    ) : userMocks[0].roles.includes("user") ? (
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        <button className="px- py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-md text-sm flex">
+                          solicitar ticket
+                        </button>
+                      </span>
+                    ) : (
+                      <span className="text-sm text-gray-500 dark:text-gray-400">
+                        No tienes permisos
+                      </span>
+                    )}
+                  </td>
+
+                  <td className="py-4">
+                    {(userMocks[0].roles.includes("admin") || userMocks[0].roles.includes("employee")) && (
+                      <button
+                        onClick={() => {
+                          setActiveTicket(t);
+                          setOpenModal(true);
+                        }}
+                        className="px-3 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-md text-sm flex items-center gap-2"
+                      >
+                        <CheckCircle size={14} /> Atender
+                      </button>
+                    )}
+                  </td>
+
+                  <td className="py-4">
+                    {(userMocks[0].roles.includes("admin") || userMocks[0].roles.includes("employee")) &&
+                      t.estado === "EN ATENCIÓN" && (
+                        <button
+                          onClick={() => handleCompletar(t)}
+                          className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm flex items-center gap-2"
+                        >
+                          <CheckCircle size={14} /> Completar
+                        </button>
+                      )}
+                  </td>
+
               </tr>
+
             ))}
           </tbody>
         </table>
@@ -180,9 +315,10 @@ export default function Tickets() {
                   Quedan solo 5 unidades en stock.
                 </div>
                 <div className="mt-3">
-                  <a className="text-sm text-blue-600 dark:text-blue-400 font-medium cursor-pointer">
+      
+                  <Link to="/inventory" className="text-sm text-blue-600 dark:text-blue-400 font-medium cursor-pointer">
                     VER INVENTARIO
-                  </a>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -243,12 +379,29 @@ export default function Tickets() {
           </div>
 
           <div className="mt-4">
-            <button className="w-full text-sm py-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
-              Ver Agenda Completa
-            </button>
+            <button
+                className="w-full text-sm py-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                onClick={() => setOpenAgenda(true)}
+              >
+                Ver Agenda Completa
+              </button>
           </div>
         </aside>
       </section>
+
+       <ModalAtender
+          open={openModal}
+          onClose={() => setOpenModal(false)}
+          ticket={activeTicket}
+          onConfirm={handleConfirmAtender}
+        />
+       <AgendaModal
+          open={openAgenda}
+          onClose={() => setOpenAgenda(false)}
+          tickets={tickets}
+        />
+
     </main>
   )
+
 }

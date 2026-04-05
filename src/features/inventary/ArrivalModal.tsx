@@ -12,7 +12,7 @@ type Props = {
 export default function ArrivalModal({ open, setOpen, med, onSubmit }: Props) {
   const [amount, setAmount] = useState("")
 
-  if (!med) return null   // ⬅️ evita errores
+  if (!med) return null   
 
   const handleSubmit = () => {
     const value = Number(amount)

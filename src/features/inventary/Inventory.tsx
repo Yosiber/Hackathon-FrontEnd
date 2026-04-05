@@ -1,6 +1,9 @@
 import { Search, Settings } from "lucide-react"
 import { useState } from "react"
-import ArrivalModal from "../inventary/ArrivalModal"
+import ArrivalModal from "./ArrivalModal"
+import { useSearch } from "../context/SearchContext";
+import { useEffect } from "react";
+
 
 type Med = {
   name: string
@@ -64,7 +67,17 @@ export default function Inventary() {
   const [open, setOpen] = useState(false)
   const [selectedMed, setSelectedMed] = useState<Med | null>(null)
   const [data, setData] = useState<Med[]>(initialMeds)
+  const { search } = useSearch();
+  const [sort, setSort] = useState("none")
+  const [showSort, setShowSort] = useState(false)
+  const { setPlaceholder } = useSearch();
 
+
+    useEffect(() => {
+      setPlaceholder("Buscar medicamento...");
+    }, []);
+
+  
   const updateStock = (amount: number) => {
     if (!selectedMed) return
     setData((prev) =>
@@ -85,11 +98,39 @@ export default function Inventary() {
     )
   }
 
-  const filtered = data.filter((m) => {
-    if (filter === "TODOS") return true
-    if (filter === "EN REPOSICIÓN") return m.eta !== "--"
-    return m.status === filter
+    let filtered = data.filter((m) => {
+    const matchesSearch = m.name.toLowerCase().includes(search.toLowerCase())
+
+    let matchesFilter = true
+    if (filter === "EN REPOSICIÓN") matchesFilter = m.eta !== "--"
+    else if (filter !== "TODOS") matchesFilter = m.status === filter
+
+    return matchesSearch && matchesFilter
   })
+
+  if (sort === "name") {
+    filtered.sort((a, b) => a.name.localeCompare(b.name))
+  }
+
+  if (sort === "stock") {
+    filtered.sort((a, b) => b.stock - a.stock)
+  }
+
+  if (sort === "min") {
+    filtered.sort((a, b) => a.min - b.min)
+  }
+
+    if (sort === "status") {
+    const order: Record<string, number> = {
+      "DISPONIBLE": 1,
+      "BAJO STOCK": 2,
+      "AGOTADO": 3,
+    }
+
+    filtered.sort((a, b) => order[a.status] - order[b.status])
+  }
+
+  
 
   const filterBtn = (label: string, value: string) => (
     <button
@@ -109,29 +150,70 @@ export default function Inventary() {
 
   return (
     <main className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen text-gray-900 dark:text-gray-100">
-      <div className="max-w-6xl mx-auto">
-
+      <div>
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
+           <div className="p-2 rounded-md bg-white dark:bg-gray-800 shadow-sm">
+              <span className="material-symbols-outlined text-gray-600 dark:text-gray-200" 
+               style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>
+               inventory_2
+              </span>
+             </div>
           <div>
-            <h1 className="text-2xl font-semibold">Inventario — Sede Centro</h1>
+            <h1 className="text-2xl font-bold">Inventario — Sede Centro</h1>
             <p className="text-sm text-gray-500 dark:text-gray-300">
               Control de suministros y gestión de existencias
             </p>
           </div>
+          </div>
           <div className="flex items-center gap-3">
             <div className="relative">
-              <input
-                placeholder="Buscar medicamento..."
-                className="pl-10 pr-4 py-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-sm text-gray-700 dark:text-gray-200 w-72"
-              />
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-300" size={16} />
-            </div>
-            <button className="p-2 rounded-md bg-white dark:bg-gray-800 shadow-sm">
-              <Settings size={16} className="text-gray-600 dark:text-gray-200" />
+            <button
+              className="p-2 rounded-md bg-white dark:bg-gray-800 shadow-sm"
+              onClick={() => setShowSort(!showSort)}
+            >
+            <span className="text-gray-600 dark:text-gray-200">
+              Filtros avanzados
+            </span>
             </button>
+                {showSort && (
+                  <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-md p-2 text-sm">
+                    <div
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer"
+                      onClick={() => { setSort("name"); setShowSort(false); }}
+                    >
+                      Ordenar por nombre
+                    </div>
+                    <div
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer"
+                      onClick={() => { setSort("stock"); setShowSort(false); }}
+                    >
+                      Ordenar por stock
+                    </div>
+                    <div
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer"
+                      onClick={() => { setSort("min"); setShowSort(false); }}
+                    >
+                      Ordenar por stock mínimo
+                    </div>
+                    <div
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer"
+                      onClick={() => { setSort("status"); setShowSort(false); }}
+                    >
+                      Ordenar por estado
+                    </div>
+                    <div
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer text-red-600"
+                      onClick={() => { setSort("none"); setShowSort(false); }}
+                    >
+                      Quitar orden
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div> 
           </div>
-        </div>
 
         {/* Alert banner */}
         <div className="bg-red-50 dark:bg-gray-800 border border-red-100 dark:border-gray-700 text-red-700 dark:text-gray-200 rounded-lg p-3 flex items-center justify-between mb-6">
@@ -155,7 +237,6 @@ export default function Inventary() {
             {filterBtn("Agotado", "AGOTADO")}
             {filterBtn("En reposición", "EN REPOSICIÓN")}
           </div>
-          <div className="text-sm text-blue-600 cursor-pointer">Filtros avanzados</div>
         </div>
 
         {/* Table */}
@@ -219,7 +300,6 @@ export default function Inventary() {
             onSubmit={updateStock}
           />
         )}
-
       </div>
     </main>
   )
