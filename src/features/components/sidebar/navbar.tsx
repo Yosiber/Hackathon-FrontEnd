@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { useSearch } from "../context/SearchContext";
-import { useNotifications } from "../context/NotificationsContext";
-import { useUser } from "../context/UserContext";
+import { useSearch } from "../../context/SearchContext";
+import { useNotifications } from "../../context/NotificationsContext";
+import { useUser } from "../../context/UserContext";
 
 export default function Navbar() {
   const { search, setSearch, placeholder } = useSearch();

@@ -1,6 +1,6 @@
 import DoughnutChart from "../../components/charts/DoughnutChart";
-import usersMock from "../../data/mock/users";
-import productsMock from "../../data/mock/products";
+import usersMock from "../../../data/mock/users";
+import productsMock from "../../../data/mock/products";
 
 export default function Dashboard() {
 

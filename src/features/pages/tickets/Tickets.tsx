@@ -1,12 +1,12 @@
 import { Bell, DownloadCloud, Search, Phone, CheckCircle, AlertTriangle, Truck } from "lucide-react"
 import { useEffect } from "react";
 import { Link } from "react-router-dom"
-import { useSearch } from "../context/SearchContext";
+import { useSearch } from "../../context/SearchContext";
 import { useState } from "react";
 import ModalAtender from "./AttendModal";
 import type { Ticket } from "./AttendModal";
 import AgendaModal from "./ScheduleModal";
-import userMocks from "../../data/mock/users";
+import userMocks from "../../../data/mock/users";
 
 
 const sampleTickets = [

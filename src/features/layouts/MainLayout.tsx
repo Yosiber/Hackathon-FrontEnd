@@ -1,5 +1,5 @@
-import Sidebar from "../sidebar/Sidebar"
-import Navbar from "../sidebar/navbar"
+import Sidebar from "../components/sidebar/Sidebar"
+import Navbar from "../components/sidebar/navbar"
  
 export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (

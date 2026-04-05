@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { User, Mail, Pencil, X, Check, Camera } from "lucide-react";
-import { useSearch } from "../context/SearchContext";
-import { useUser } from "../context/UserContext";
+import { useSearch } from "../../context/SearchContext";
+import { useUser } from "../../context/UserContext";
 import PhotoUploadModal from "./PhotoUploadModal";
 
 export default function Profile() {

@@ -1,7 +1,6 @@
 import SidebarItem from "./SidebarItem";
-import { useState } from "react";
 import ThemeToggle from "../themetoggle/ThemeToggle"
-import { useUser } from "../context/UserContext";
+import { useUser } from "../../context/UserContext";
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 
