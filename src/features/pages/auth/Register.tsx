@@ -3,7 +3,7 @@ import type { z } from "zod";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "../../schemas/user.schema";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import ErrorAlert from "../../components/form/ErrorAlert";
 import { getFirstFormError } from "../../assets/scripts/getFirstFormError";
 
