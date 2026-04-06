@@ -6,7 +6,7 @@ import {
     getAuthUserProfile
 } from "../api/requests/auth.request";
 
-import type { LoginDto, LoginResponseDto, AuthUserDto } from '../api/types/auth.type';
+import type { LoginDto, AuthUserDto } from '../api/types/auth.type';
 
 interface AuthContextType {
   loading: boolean,
@@ -52,6 +52,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setLoading(false);
     }
   };
+
+  const logout = () => {
+    setAuthUser(null);
+    {/** PENDIENTE IMPLEMENTAR SERVICIO BORRADO COOKIE BACKEND */}
+  }
+
+  {/** PENDIENTE CHECKEO DE TOKEN VALIDO */}
 
   return (
     <AuthContext.Provider
