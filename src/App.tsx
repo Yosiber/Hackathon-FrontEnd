@@ -21,7 +21,7 @@ function App() {
             <Routes>
               {/**<Route path="/login" element={<Login />} />*/}
               <Route path="/register" element={<Register />} />
-              <Route path="/verification" element={<InitialVerification />} />
+              <Route path="/verify-registration" element={<InitialVerification />} />
               <Route path="/*" element={
                 <MainLayout>
                   <Routes>

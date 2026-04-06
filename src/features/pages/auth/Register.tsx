@@ -1,13 +1,13 @@
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "../../schemas/user.schema";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import ErrorAlert from "../../components/form/ErrorAlert";
 import { getFirstFormError } from "../../assets/scripts/getFirstFormError";
 import { useUsers } from "../../context/UserContext";
-import { useNavigate } from "react-router-dom";
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
@@ -27,7 +27,7 @@ export default function Register() {
         
         if (createdUserId) {
             const { email } = data;
-            navigate("/verify", {
+            navigate("/verify-registration", {
                 state: { email, createdUserId }
             })
             reset();
