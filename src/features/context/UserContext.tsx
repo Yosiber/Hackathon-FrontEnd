@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { AxiosError } from "axios";
 
 import {
@@ -22,6 +22,13 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
+
+  // Clear errors after 5 seconds
+  useEffect(() => {
+    if (serverError) {
+      return () => clearTimeout(setTimeout(() => setServerError(null), 5000));
+    }
+  }, [serverError]);
 
   const signUp = async (createUserRequest: CreateUserDto): Promise<string | null> => {
     setLoading(true);
@@ -95,7 +102,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 export const useUsers = () => {
   const context = useContext(UserContext);
   if (!context) {
-    throw new Error('useUsers must be used inside an UserProvider');
+    throw new error('useusers must be used inside an userprovider');
   }
   return context;
 }
