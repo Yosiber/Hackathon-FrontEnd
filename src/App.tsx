@@ -1,7 +1,7 @@
 import MainLayout from "./features/layouts/MainLayout"
 import Tickets from "./features/pages/tickets/Tickets"
 import Dashboard from "./features/pages/dashboard/Dashboard"
-import Inventory from "./features/pages/inventary/Inventory"
+import Inventory from "./features/pages/inventory/Inventory"
 import Notifications from "./features/pages/notification/Notifications"
 import Register from "./features/pages/auth/Register"
 import InitialVerification from "./features/pages/auth/InitialVerification"
@@ -14,6 +14,7 @@ import './App.css'
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { AuthProvider } from "./features/context/AuthContext"
 import { ProtectedRoute } from "./features/routesControl/routes"
+import Profile from "./features/profile/Profile"
 
 function App() {
   return (
@@ -34,6 +35,7 @@ function App() {
                         <Route path="/tickets" element={<Tickets />} />
                         <Route path="/inventory" element={<Inventory />} />
                         <Route path="/notifications" element={<Notifications />} />
+                        <Route path="/profile" element={<Profile />} />
                       </Route>
                     </Routes>
                   </MainLayout>

@@ -4,7 +4,8 @@ import { AxiosError } from "axios";
 import {
   createUser,
   verifyUser,
-  resendRegisterCode
+  resendRegisterCode,
+  updateProfilePicture
 } from "../api/requests/user.request";
 
 import type { CreateUserDto, VerifyUserOtpDto } from '../api/types/user.types';
@@ -15,9 +16,10 @@ interface UserContextType {
   signUp: (data: CreateUserDto) => Promise<string | null>;
   verifyUserRegistration: (data: VerifyUserOtpDto) => Promise<boolean>;
   resendSignupCode: (data: string) => Promise<boolean>;
+  updateUserImage: (userId: string, imageBase64: string) => Promise<boolean>;
 }
 
-const UserContext = createContext<UserContextType | undefined>(undefined);
+const UserContext = createContext<UserContextType | null>(null);
 
 export const UserProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(false);
@@ -84,6 +86,23 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  const updateUserImage = async (userId: string, imageBase64: string): Promise<boolean> => {
+    setLoading(true);
+    setServerError(null);
+    try {
+      await updateProfilePicture(userId, imageBase64);
+      setServerError(null);
+      return true;
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        setServerError(error.response.data.message);
+      }
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <UserContext.Provider
       value={{
@@ -91,7 +110,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         serverError,
         signUp,
         verifyUserRegistration,
-        resendSignupCode
+        resendSignupCode,
+        updateUserImage
       }}
     >
       {children}
@@ -102,7 +122,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
 export const useUsers = () => {
   const context = useContext(UserContext);
   if (!context) {
-    throw new Error('useusers must be used inside an userprovider');
+    throw new Error('useUsers must be used inside an UserProvider');
   }
   return context;
 }
