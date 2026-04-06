@@ -3,8 +3,8 @@ import {
   AlertTriangle, PackageCheck, ClipboardCheck,
   Clock, CheckCheck, Trash2, Plus, X, Check, InboxIcon,
 } from "lucide-react";
-import { useSearch } from "../context/SearchContext";
-import { useNotifications, type TipoNotificacion, type Notificacion } from "../context/NotificationsContext";
+import { useSearch } from "../../context/SearchContext";
+import { useNotifications, type TipoNotificacion, type Notificacion } from "../../context/NotificationsContext";
 
 export type FiltroNotificacion = "todas" | TipoNotificacion | "no_leidas";
 

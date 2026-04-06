@@ -1,16 +1,14 @@
 import SidebarItem from "./SidebarItem";
-import { useState } from "react";
 import ThemeToggle from "../themetoggle/ThemeToggle"
-import { useUser } from "../context/UserContext";
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import userMocks from "../../../data/mock/users";
 
 export default function Sidebar() {
 
   const location = useLocation();
-  const { user } = useUser();
 
-  const imageSrc = `data:image/png;base64,${user.imageProfile}`;
+  const imageSrc = `data:image/png;base64,${userMocks[0].imageProfile}`;
 
   return (
     <aside className="sticky top-0 h-screen w-64 bg-white border-r border-gray-200 flex flex-col justify-between shadow-sm flex-shrink-0 z-40 dark:border-gray-700 dark:bg-gray-800">

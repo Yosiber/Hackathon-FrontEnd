@@ -1,15 +1,14 @@
 import { useNavigate } from "react-router-dom";
-import { useSearch } from "../context/SearchContext";
-import { useNotifications } from "../context/NotificationsContext";
-import { useUser } from "../context/UserContext";
+import { useSearch } from "../../context/SearchContext";
+import { useNotifications } from "../../context/NotificationsContext";
+import userMocks from "../../../data/mock/users";
 
 export default function Navbar() {
   const { search, setSearch, placeholder } = useSearch();
   const { noLeidas } = useNotifications();
-  const { user } = useUser();
   const navigate = useNavigate();
 
-  const imageSrc = `data:image/png;base64,${user.imageProfile}`;
+  const imageSrc = `data:image/png;base64,${userMocks[0].imageProfile}`;
 
   return (
     <header

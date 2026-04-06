@@ -1,7 +1,6 @@
-import { Search, Settings } from "lucide-react"
 import { useState } from "react"
 import ArrivalModal from "./ArrivalModal"
-import { useSearch } from "../context/SearchContext";
+import { useSearch } from "../../context/SearchContext";
 import { useEffect } from "react";
 
 

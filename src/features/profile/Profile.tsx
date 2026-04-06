@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import {
   User, Mail, Pencil, X, Check, Camera,
-  MapPin, Clock, ShieldCheck, Bell, ClipboardList,
+  ShieldCheck, Bell, ClipboardList,
   PackageCheck, AlertTriangle, ChevronRight,
 } from "lucide-react";
 import { useSearch } from "../context/SearchContext";
-import { useUser } from "../context/UserContext";
+import { useUsers } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import PhotoUploadModal from "./PhotoUploadModal";
+import { useAuth } from "../context/AuthContext";
 
 const actividadReciente = [
   { tipo: "ticket",   icono: "ticket",     texto: "Ticket B-202 completado — Ana Rosa",      tiempo: "Hace 10 min",  color: "text-blue-500",   bg: "bg-blue-50 dark:bg-blue-900/30"   },
@@ -39,14 +40,15 @@ function ActivityIcon({ tipo }: { tipo: string }) {
 
 export default function Profile() {
   const { setPlaceholder } = useSearch();
-  const { user, updateImage } = useUser();
+  const { updateUserImage } = useUsers();
+  const { authUser } = useAuth();
   const navigate = useNavigate();
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    name: user.name,
-    email: user.email,
-    imageProfile: user.imageProfile,
+    name: authUser?.name,
+    email: authUser?.email,
+    imageProfile: authUser?.profilePictureUrl,
   });
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
 
@@ -55,12 +57,12 @@ export default function Profile() {
   }, []);
 
   useEffect(() => {
-    setFormData((prev) => ({ ...prev, imageProfile: user.imageProfile }));
-  }, [user.imageProfile]);
+    setFormData((prev) => ({ ...prev, imageProfile: authUser?.profilePictureUrl }));
+  }, [authUser?.profilePictureUrl]);
 
   const handleCancel = () => {
     setIsEditing(false);
-    setFormData({ name: user.name, email: user.email, imageProfile: user.imageProfile });
+    setFormData({ name: authUser?.name || '', email: authUser?.email || '', imageProfile: authUser?.profilePictureUrl });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -73,10 +75,16 @@ export default function Profile() {
     setIsPhotoModalOpen(false);
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateImage(formData.imageProfile);
-    setIsEditing(false);
+    if (formData.imageProfile && authUser?._id) {
+      try {
+        await updateUserImage(authUser._id, formData.imageProfile);
+        setIsEditing(false);
+      } catch (error) {
+        console.error('Error al actualizar la imagen:', error);
+      }
+    }
   };
 
   const avatarSrc = formData.imageProfile
@@ -137,17 +145,7 @@ export default function Profile() {
             <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded-lg border border-gray-100 dark:border-gray-700">
               <ShieldCheck size={15} className="text-blue-500 flex-shrink-0" />
               <span className="text-xs text-gray-500 dark:text-gray-400 w-14 flex-shrink-0">Rol</span>
-              <span className="text-xs font-medium">{user.role}</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded-lg border border-gray-100 dark:border-gray-700">
-              <MapPin size={15} className="text-green-500 flex-shrink-0" />
-              <span className="text-xs text-gray-500 dark:text-gray-400 w-14 flex-shrink-0">Sede</span>
-              <span className="text-xs font-medium">{user.sede}</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-900 px-3 py-2 rounded-lg border border-gray-100 dark:border-gray-700">
-              <Clock size={15} className="text-amber-500 flex-shrink-0" />
-              <span className="text-xs text-gray-500 dark:text-gray-400 w-14 flex-shrink-0">Turno</span>
-              <span className="text-xs font-medium">Turno {user.turno}</span>
+              <span className="text-xs font-medium">{authUser?.role || '-'}</span>
             </div>
           </div>
 
@@ -175,9 +173,7 @@ export default function Profile() {
               {[
                 { label: "Nombre completo", value: formData.name,  icon: <User size={15} />  },
                 { label: "Correo electrónico", value: formData.email, icon: <Mail size={15} /> },
-                { label: "Rol en el sistema", value: user.role,    icon: <ShieldCheck size={15} /> },
-                { label: "Sede asignada",     value: user.sede,    icon: <MapPin size={15} />     },
-                { label: "Turno actual",      value: `Turno ${user.turno}`, icon: <Clock size={15} /> },
+                { label: "Rol en el sistema", value: authUser?.role || '-',    icon: <ShieldCheck size={15} /> },
               ].map((row) => (
                 <div key={row.label}
                   className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700">
@@ -206,9 +202,7 @@ export default function Profile() {
 
               {/* Campos de solo lectura en edición */}
               {[
-                { label: "Rol en el sistema", value: user.role },
-                { label: "Sede asignada",     value: user.sede },
-                { label: "Turno actual",      value: `Turno ${user.turno}` },
+                { label: "Rol en el sistema", value: authUser?.role || '-' },
               ].map((f) => (
                 <div key={f.label}>
                   <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5">{f.label}</label>
@@ -218,7 +212,11 @@ export default function Profile() {
               ))}
 
               <p className="text-xs text-gray-400 dark:text-gray-500">
-                * El rol, sede y turno son asignados por el administrador del sistema.
+                {authUser?.role === "usuario" ? (
+                  "* Tu rol es de un usuario normal, asignado por el sistema."
+                ) : (
+                  "* El rol, sede y turno son asignados por el administrador del sistema."
+                )}
               </p>
 
               <div className="flex justify-end gap-3 pt-2">

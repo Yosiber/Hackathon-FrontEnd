@@ -1,47 +1,128 @@
-import { createContext, useContext, useState, type ReactNode } from "react";
-import usersMock from "../../data/mock/users";
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { AxiosError } from "axios";
 
-interface User {
-  name: string;
-  imageProfile: string;
-  role: string;
-  sede: string;
-  turno: string;
-  email: string;
-}
+import {
+  createUser,
+  verifyUser,
+  resendRegisterCode,
+  updateProfilePicture
+} from "../api/requests/user.request";
+
+import type { CreateUserDto, VerifyUserOtpDto } from '../api/types/user.types';
 
 interface UserContextType {
-  user: User;
-  updateImage: (base64: string) => void;
+  loading: boolean,
+  serverError: string | null,
+  signUp: (data: CreateUserDto) => Promise<string | null>;
+  verifyUserRegistration: (data: VerifyUserOtpDto) => Promise<boolean>;
+  resendSignupCode: (data: string) => Promise<boolean>;
+  updateUserImage: (userId: string, imageBase64: string) => Promise<boolean>;
 }
 
 const UserContext = createContext<UserContextType | null>(null);
 
-const initialUser: User = {
-  name: usersMock[0].name,
-  imageProfile: usersMock[0].imageProfile,
-  role: "Staff Principal",
-  sede: "Sede Centro",
-  turno: "Mañana",
-  email: "staff@drogueria.com",
-};
+export const UserProvider = ({ children }: { children: ReactNode }) => {
+  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
-export function UserProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User>(initialUser);
+  // Clear errors after 5 seconds
+  useEffect(() => {
+    if (serverError) {
+      return () => clearTimeout(setTimeout(() => setServerError(null), 5000));
+    }
+  }, [serverError]);
 
-  const updateImage = (base64: string) => {
-    setUser((prev) => ({ ...prev, imageProfile: base64 }));
+  const signUp = async (createUserRequest: CreateUserDto): Promise<string | null> => {
+    setLoading(true);
+    setServerError(null);
+    try {
+      const response = await createUser(createUserRequest);
+      if (response.data?.user?.id) {
+        return response.data.user.id;
+      }
+      setServerError(null);
+      return null;
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        setServerError(error.response.data.message);
+      }
+      return null;
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const verifyUserRegistration = async (verifyUserOtpDto: VerifyUserOtpDto): Promise<boolean> => {
+    setLoading(true);
+    setServerError(null);
+    try {
+      await verifyUser(verifyUserOtpDto);
+      setServerError(null);
+      return true;
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        setServerError(error.response.data.message);
+      }
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const resendSignupCode = async (userId: string): Promise<boolean> => {
+    setLoading(true);
+    setServerError(null);
+    try {
+      await resendRegisterCode(userId);
+      setServerError(null);
+      return true;
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        setServerError(error.response.data.message);
+      }
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const updateUserImage = async (userId: string, imageBase64: string): Promise<boolean> => {
+    setLoading(true);
+    setServerError(null);
+    try {
+      await updateProfilePicture(userId, imageBase64);
+      setServerError(null);
+      return true;
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        setServerError(error.response.data.message);
+      }
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
-    <UserContext.Provider value={{ user, updateImage }}>
+    <UserContext.Provider
+      value={{
+        loading,
+        serverError,
+        signUp,
+        verifyUserRegistration,
+        resendSignupCode,
+        updateUserImage
+      }}
+    >
       {children}
     </UserContext.Provider>
-  );
-}
+  )
+};
 
-export function useUser() {
-  const ctx = useContext(UserContext);
-  if (!ctx) throw new Error("useUser debe usarse dentro de UserProvider");
-  return ctx;
+export const useUsers = () => {
+  const context = useContext(UserContext);
+  if (!context) {
+    throw new Error('useUsers must be used inside an UserProvider');
+  }
+  return context;
 }
