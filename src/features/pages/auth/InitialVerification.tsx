@@ -14,10 +14,10 @@ type VerifyRegisterFormValues = z.infer<typeof verifyRegistrationSchema>
 
 export default function InitialVerification() {
 
-    const { verifyUserRegistration, serverError } = useUsers();
-    const [ codeSent, setCodeSent ] = useState(true);
+    const { verifyUserRegistration, resendSignupCode, serverError } = useUsers();
+    const [ resendCount, setResendCount ] = useState(1);
 
-    const { register, handleSubmit, formState: { errors, isSubmitted }, reset, control } = useForm({
+    const { handleSubmit, formState: { errors, isSubmitted }, reset, control } = useForm({
         resolver: zodResolver(verifyRegistrationSchema)
     });
 
@@ -30,11 +30,16 @@ export default function InitialVerification() {
 
     const onSubmit = async (data: VerifyRegisterFormValues) => {
         const response = await verifyUserRegistration({...data, createdUserId: createdUserId})
-        console.log(data.code);
         if (response) {
-            navigate("/login");
+            navigate("/login", {
+                state: { registryVerified: true }
+            });
             reset();
         }
+    }
+
+    const resendCode = async () => {
+        await resendSignupCode(createdUserId);
     }
 
     useEffect(() => {
@@ -46,8 +51,8 @@ export default function InitialVerification() {
 
     return (
         <main className="min-h-screen flex items-center justify-center relative overflow-x-hidden">
-            {codeSent && (
-                <ErrorAlert key={0} message={`Un código de verificación ha sido enviado a ${email}`} status="success" />
+            {resendCount > 0 && (
+                <ErrorAlert key={resendCount} message={`Un código de verificación ha sido enviado a ${email}`} status="success" />
             )}
             {isSubmitted && errorMessage && (
                 <ErrorAlert key={errorMessage} message={errorMessage} status="error" />
@@ -81,7 +86,8 @@ export default function InitialVerification() {
                             style={{ background: "linear-gradient(135deg, #005dac 0%, #1976d2 100%)" }}><span>Verificar Identidad</span>
                             </button>
                             <div className="text-center">
-                                <button className="text-blue-800 font-bold hover:scale-[1.05] inline-flex items-center gap-1 text-sm transition-all hover:cursor-pointer">
+                                <button className="text-blue-800 font-bold hover:scale-[1.05] inline-flex items-center gap-1 text-sm transition-all hover:cursor-pointer" type="button"
+                                onClick={() => {resendCode();setResendCount(prev => prev + 1)} }>
                                     <span className="material-symbols-outlined !text-lg" style={{ fontVariationSettings: "'FILL' 1" }}>refresh</span>
                                     Reenviar código
                                 </button>

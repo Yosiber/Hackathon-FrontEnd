@@ -3,7 +3,8 @@ import { AxiosError } from "axios";
 
 import {
   createUser,
-  verifyUser
+  verifyUser,
+  resendRegisterCode
 } from "../api/requests/user.request";
 
 import type { CreateUserDto, VerifyUserOtpDto } from '../api/types/user.types';
@@ -13,6 +14,7 @@ interface UserContextType {
   serverError: string | null,
   signUp: (data: CreateUserDto) => Promise<string | null>;
   verifyUserRegistration: (data: VerifyUserOtpDto) => Promise<boolean>;
+  resendSignupCode: (data: string) => Promise<boolean>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -56,7 +58,24 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }
+
+  const resendSignupCode = async (userId: string): Promise<boolean> => {
+    setLoading(true);
+    setServerError(null);
+    try {
+      await resendRegisterCode(userId);
+      setServerError(null);
+      return true;
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        setServerError(error.response.data.message);
+      }
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <UserContext.Provider
@@ -64,7 +83,8 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         loading,
         serverError,
         signUp,
-        verifyUserRegistration
+        verifyUserRegistration,
+        resendSignupCode
       }}
     >
       {children}

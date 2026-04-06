@@ -7,3 +7,5 @@ export const createUser = async (createUser: CreateUserDto) => axiosInstance.pos
 // Verify User
 export const verifyUser = async (verifyUser: VerifyUserOtpDto) => axiosInstance.post(`/users/${verifyUser.createdUserId}/verify-registration`, verifyUser);
 
+// Re-send Register Code
+export const resendRegisterCode = async (userId: string) => axiosInstance.post(`/users/${userId}/resend-registration-code`);
