@@ -6,33 +6,33 @@ import { registerSchema } from "../../schemas/user.schema";
 import { useState } from "react";
 import ErrorAlert from "../../components/form/ErrorAlert";
 import { getFirstFormError } from "../../assets/scripts/getFirstFormError";
+import { useUsers } from "../../context/UserContext";
+import { useNavigate } from "react-router-dom";
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function Register() {
-    {/**const [signUp, serverErrors: userErrors, setErrors] = useUser();**/}
-
+    const { signUp, serverError } = useUsers();
     const [ showPassword, setShowPassword ] = useState(false);
 
     const { register, handleSubmit, formState: { errors, isSubmitted }, reset } = useForm({
         resolver: zodResolver(registerSchema)
     });
+    const navigate = useNavigate();
+
+    const errorMessage = getFirstFormError(errors, serverError);
 
     const onSubmit = async (data: RegisterFormValues) => {
-        try {
-            const success = false;
-            {/**success = await signUp({ ...data, role: "usuario" })*/}
-            console.log(data);
-            if (success) {
-                console.log("Registro exitoso");
-                reset();
-            }
-        } catch (error) {
-            console.error("Error en el registro:", error);
+        const createdUserId = await signUp({ ...data, role: "usuario" });
+        
+        if (createdUserId) {
+            const { email } = data;
+            navigate("/verify", {
+                state: { email, createdUserId }
+            })
+            reset();
         }
     }
-
-    const errorMessage = getFirstFormError(errors);
 
     return (
         <main className="min-h-screen w-full flex items-center justify-center relative p-6 md:p-12">
@@ -151,7 +151,7 @@ export default function Register() {
                             </button>
                         </div>
                         <div className="md:col-span-1 flex flex-col md:flex-row items-center gap-6">
-                            <button type="submit" className="text-blue-800 font-bold px-12 py-2 rounded-xl text-lg flex items-center gap-3 shadow-lg hover:scale-[1.02] hover:cursor-pointer transition-transform w-full md:w-auto" >
+                            <button type="button" onClick={() => {navigate("/login"); reset();}} className="text-blue-800 font-bold px-12 py-2 rounded-xl text-lg flex items-center gap-3 shadow-lg hover:scale-[1.02] hover:cursor-pointer transition-transform w-full md:w-auto" >
                                 ¿Ya tienes una Cuenta?
                             </button>
                         </div>

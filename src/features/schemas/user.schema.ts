@@ -9,7 +9,7 @@ export const registerSchema = z.object({
     .regex(/^[\w.%+-]+@[A-Za-z\d.-]{2,}\.[a-z]{2,6}$/, "Email inválido"),
   password: z.string()
     .nonempty("La contraseña es obligatoria")
-    .regex(/^(?=.*\d+)(?=.*[a-z]+)(?=.*[A-Z]+)(?=.*[^a-zA-Z\d]+)[a-zA-Z0-9].{7,30}$/, "Contraseña inválida"),
+    .regex(/^(?=.*\d+)(?=.*[a-z]+)(?=.*[A-Z]+)(?=.*[^a-zA-Z\d]+)[a-zA-Z0-9].{7,30}$/, "Ingresa una Contraseña entre 7 y 30 carácteres, mínimo 1 minúscula, 1 mayúscula, 1 número y 1 carácter especial"),
   age: z.string()
     .nonempty("La edad es obligatoria")
     .regex(/^\d+$/, "Edad inválida")

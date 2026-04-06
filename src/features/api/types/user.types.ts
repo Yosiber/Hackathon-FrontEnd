@@ -9,3 +9,8 @@ export interface CreateUserDto {
     age: number;
     role: string;
 }
+
+export interface VerifyUserOtpDto {
+    createdUserId: string;
+    code: string;
+}

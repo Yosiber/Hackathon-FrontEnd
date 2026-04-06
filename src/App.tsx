@@ -7,10 +7,10 @@ import Register from "./features/pages/auth/Register"
 import { SearchProvider } from "./features/context/SearchContext"
 import { NotificationsProvider } from "./features/context/NotificationsContext"
 import { UserProvider } from "./features/context/UserContext"
-import Profile from "./features/pages/profile/Profile"
 import './App.css'
 
 import { BrowserRouter, Routes, Route } from "react-router-dom"
+import InitialVerification from "./features/pages/auth/InitialVerification"
 
 function App() {
   return (
@@ -19,9 +19,9 @@ function App() {
         <SearchProvider>
           <NotificationsProvider>
             <Routes>
-              {/**<Route path="/login" element={<Login />} />
-              <Route path="/verification" element={<Verification />} />**/}
+              {/**<Route path="/login" element={<Login />} />*/}
               <Route path="/register" element={<Register />} />
+              <Route path="/verification" element={<InitialVerification />} />
               <Route path="/*" element={
                 <MainLayout>
                   <Routes>
@@ -29,7 +29,6 @@ function App() {
                     <Route path="/tickets" element={<Tickets />} />
                     <Route path="/inventory" element={<Inventory />} />
                     <Route path="/notifications" element={<Notifications />} />
-                    <Route path="/profile" element={<Profile />} />
                   </Routes>
                 </MainLayout>
               } />
