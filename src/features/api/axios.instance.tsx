@@ -4,10 +4,7 @@ const apiUrl = import.meta.env.VITE_API_URL;
 
 const instance: AxiosInstance = axios.create({
     baseURL: apiUrl,
-    withCredentials: true,
-    headers: {
-        'Content-Type': 'application/json',
-    },
+    withCredentials: true
 });
 
 instance.interceptors.request.use(
