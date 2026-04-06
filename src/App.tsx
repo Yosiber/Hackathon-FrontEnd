@@ -13,6 +13,7 @@ import './App.css'
 
 import { BrowserRouter, Routes, Route } from "react-router-dom"
 import { AuthProvider } from "./features/context/AuthContext"
+import { ProtectedRoute } from "./features/routesControl/routes"
 
 function App() {
   return (
@@ -28,10 +29,12 @@ function App() {
                 <Route path="/*" element={
                   <MainLayout>
                     <Routes>
-                      <Route path="/" element={<Dashboard />} />
-                      <Route path="/tickets" element={<Tickets />} />
-                      <Route path="/inventory" element={<Inventory />} />
-                      <Route path="/notifications" element={<Notifications />} />
+                      <Route element={<ProtectedRoute requiredRoles={[]} />} >
+                        <Route path="/" element={<Dashboard />} />
+                        <Route path="/tickets" element={<Tickets />} />
+                        <Route path="/inventory" element={<Inventory />} />
+                        <Route path="/notifications" element={<Notifications />} />
+                      </Route>
                     </Routes>
                   </MainLayout>
                 } />
