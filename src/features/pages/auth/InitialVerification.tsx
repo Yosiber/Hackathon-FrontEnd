@@ -32,7 +32,7 @@ export default function InitialVerification() {
         const response = await verifyUserRegistration({...data, createdUserId: createdUserId})
         if (response) {
             navigate("/login", {
-                state: { registryVerified: true }
+                state: { successRegister: "Has verificado tu cuenta satisfactoriamente" }
             });
             reset();
         }
