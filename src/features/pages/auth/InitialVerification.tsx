@@ -8,7 +8,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getFirstFormError } from "../../assets/scripts/getFirstFormError";
 import ErrorAlert from "../../components/form/ErrorAlert";
-import { OtpInputField } from "../../components/form/OTPInput";
+import { OtpInputField } from "../../components/form/OtpInput";
 
 type VerifyRegisterFormValues = z.infer<typeof verifyRegistrationSchema>
 
