@@ -1,5 +1,5 @@
 import React, { useState, useRef, forwardRef } from 'react';
-import { Controller, type Control } from 'react-hook-form';
+import { Controller, type Control, type FieldValues, type Path } from 'react-hook-form';
 
 interface OtpInputProps {
   value?: string;
@@ -82,7 +82,7 @@ export const OtpInput = forwardRef<HTMLDivElement, OtpInputProps>(
           return (
             <input
               key={index}
-              ref={el => (inputRefs.current[index] = el)}
+              ref={el => { inputRefs.current[index] = el; }}
               type="text"
               inputMode="numeric"
               value={digit}
@@ -105,13 +105,17 @@ export const OtpInput = forwardRef<HTMLDivElement, OtpInputProps>(
 
 OtpInput.displayName = 'OtpInput';
 
-interface OtpInputFieldProps {
-  control: Control<any>;
-  name: string;
+interface OtpInputFieldProps<T extends FieldValues> {
+  control: Control<T>;
+  name: Path<T>;
   length?: number;
 }
 
-export const OtpInputField = ({ control, name, length = 6 }: OtpInputFieldProps) => (
+export const OtpInputField = <T extends FieldValues>({ 
+  control, 
+  name, 
+  length = 6 
+}: OtpInputFieldProps<T>) => (
   <Controller
     control={control}
     name={name}
