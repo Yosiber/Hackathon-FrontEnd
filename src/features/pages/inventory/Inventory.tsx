@@ -8,6 +8,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import ScheduleArrivalModal from "./ScheduleArrivalModal";
 import { formatDate } from "./helpers";
+import { getMedications } from "../../api/requests/medication.request";
 
 type Med = {
   id: string
@@ -160,8 +161,15 @@ export default function Inventary() {
 
   const fetchMeds = async () => {
     try {
-      const res = await api.get("/medications")
-      const mapped = res.data.items.map((m: any) => ({
+      const res = await getMedications({
+        page,
+        limit: PAGE_SIZE,
+        name: search,
+        status: filter,
+        hasReposition: filter === "EN REPOSICIÓN"
+      });
+
+      const mapped = res.items.map((m: any) => ({
         id: m._id,
         name: m.name,
         brand: m.laboratory,
@@ -173,24 +181,22 @@ export default function Inventary() {
         repositionDate: m.repositionDate,
         incomingStock: m.incomingStock,
         reservedIncomingStock: m.reservedIncomingStock
-      }))
-      setData(mapped)
+      }));
+
+      setData(mapped);
+      // setTotalItems(res.total); 
     } catch (err) {
-      console.error("Error trayendo medicamentos:", err)
+      console.error("Error trayendo medicamentos:", err);
     }
-  }
+  };
 
   useEffect(() => {
-    try {
-      fetchMeds()
-    } catch (error) {
-      console.error("Error trayendo medicamentos:", error);   
-    }
-  }, [])
+    fetchMeds();
+  }, [page, filter, search]);
 
   useEffect(() => {
-  setPage(1)
-  }, [filter, search])
+    setPage(1);
+  }, [filter, search]);
 
   const filterBtn = (label: string, value: string) => (
     <button
