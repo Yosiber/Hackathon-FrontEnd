@@ -112,7 +112,6 @@ export default function Inventary() {
   const [page, setPage] = useState(1)
   const PAGE_SIZE = 10
 
-  // actualizar llegada
   const [scheduleOpen, setScheduleOpen] = useState(false)
 
   useEffect(() => {
@@ -220,140 +219,78 @@ export default function Inventary() {
   return (
     <main className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen text-gray-900 dark:text-gray-100">
       <div>
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-           <div className="p-2 rounded-xl bg-white/80 dark:bg-gray-800 shadow-[0_0_10px_0px_rgba(0,0,0,0.15)]">
-              <span className="material-symbols-outlined text-gray-600 dark:text-gray-200" 
-               style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>
-               inventory_2
-              </span>
-             </div>
+            {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        {/* Izquierda */}
+        <div className="flex items-center gap-4">
+          <div className="p-2 rounded-xl bg-white/80 dark:bg-gray-800 shadow-[0_0_10px_0px_rgba(0,0,0,0.15)]">
+            <span
+              className="material-symbols-outlined text-gray-600 dark:text-gray-200"
+              style={{ fontSize: "20px", fontVariationSettings: "'FILL' 1" }}
+            >
+              inventory_2
+            </span>
+          </div>
+
           <div>
             <h1 className="text-2xl font-bold">Inventario — Sede Centro</h1>
             <p className="text-sm text-gray-500 dark:text-gray-300">
               Control de suministros y gestión de existencias
             </p>
           </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="relative">
+        </div>
+
+        {/* Derecha */}
+        <div className="flex items-center gap-3">
+          {isAdmin ? (
             <button
-              className="p-2 rounded-xl bg-white/80 dark:bg-gray-800 shadow-[0_0_10px_0px_rgba(0,0,0,0.15)]"
+              onClick={() => setAddOpen(true)}
+              className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium"
+            >
+              + Añadir Medicamento
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate("/tickets")}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+            >
+              Solicitar medicamento
+            </button>
+          )}
+
+          {/* Filtros */}
+          <div className="relative">
+            <button
+              className="p-2 rounded-xl bg-white/80 dark:bg-gray-800 shadow"
               onClick={() => setShowSort(!showSort)}
             >
-            <span className="text-gray-600 dark:text-gray-200">
-              Filtros avanzados
-            </span>
+              <span className="text-gray-600 dark:text-gray-200">
+                Filtros avanzados
+              </span>
             </button>
-                {showSort && (
-                  <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-md p-2 text-sm">
-                    <div
-                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer"
-                      onClick={() => { setSort("name"); setShowSort(false); }}
-                    >
-                      Ordenar por nombre
-                    </div>
-                    <div
-                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer"
-                      onClick={() => { setSort("stock"); setShowSort(false); }}
-                    >
-                      Ordenar por stock
-                    </div>
-                    <div
-                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer"
-                      onClick={() => { setSort("min"); setShowSort(false); }}
-                    >
-                      Ordenar por stock mínimo
-                    </div>
-                    <div
-                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer"
-                      onClick={() => { setSort("status"); setShowSort(false); }}
-                    >
-                      Ordenar por estado
-                    </div>
-                    <div
-                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer text-red-600"
-                      onClick={() => { setSort("none"); setShowSort(false); }}
-                    >
-                      Quitar orden
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div> 
-            <div className="p-2 rounded-md bg-white dark:bg-gray-800 shadow-sm">
-              <span className="material-symbols-outlined text-gray-600 dark:text-gray-200"
-                style={{ fontSize: "20px", fontVariationSettings: "'FILL' 1" }}>
-                inventory_2
-              </span>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold">Inventario — Sede Centro</h1>
-              <p className="text-sm text-gray-500 dark:text-gray-300">
-                Control de suministros y gestión de existencias
-              </p>
-            </div>
-          </div>
 
-          <div className="flex items-center gap-3">
-              {/* Notificación stock crítico (vacía por ahora) */}
-              <span className="text-sm text-red-600 font-medium hidden">
-                {/* Aquí luego metes la lógica */}
-              </span>
-
-              {/* Botón añadir medicamento */}
-              {isAdmin ? (
-                <button
-                  onClick={() => setAddOpen(true)}
-                  className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium"
-                >
-                  + Añadir Medicamento
-                </button>
-              ) : (
-                <button
-                  onClick={() => navigate("/tickets")}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
-                >
-                  Solicitar medicamento
-                </button>
-              )}
-
-              {/* Filtros avanzados */}
-              <div className="relative">
-                <button
-                  className="p-2 rounded-md bg-white dark:bg-gray-800 shadow-sm"
-                  onClick={() => setShowSort(!showSort)}
-                >
-                  <span className="text-gray-600 dark:text-gray-200">Filtros avanzados</span>
-                </button>
-              {showSort && (
-                <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-md p-2 text-sm z-10">
-                  <div className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer"
-                    onClick={() => { setSort("name"); setShowSort(false) }}>
-                    Ordenar por nombre
-                  </div>
-                  <div className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer"
-                    onClick={() => { setSort("stock"); setShowSort(false) }}>
-                    Ordenar por stock
-                  </div>
-                  <div className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer"
-                    onClick={() => { setSort("min"); setShowSort(false) }}>
-                    Ordenar por stock mínimo
-                  </div>
-                  <div className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer"
-                    onClick={() => { setSort("status"); setShowSort(false) }}>
-                    Ordenar por estado
-                  </div>
-                  <div className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer text-red-600"
-                    onClick={() => { setSort("none"); setShowSort(false) }}>
-                    Quitar orden
-                  </div>
+            {showSort && (
+              <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-md p-2 text-sm z-10">
+                <div onClick={() => { setSort("name"); setShowSort(false); }} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer">
+                  Ordenar por nombre
                 </div>
-              )}
-            </div>
+                <div onClick={() => { setSort("stock"); setShowSort(false); }} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer">
+                  Ordenar por stock
+                </div>
+                <div onClick={() => { setSort("min"); setShowSort(false); }} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer">
+                  Ordenar por stock mínimo
+                </div>
+                <div onClick={() => { setSort("status"); setShowSort(false); }} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer">
+                  Ordenar por estado
+                </div>
+                <div onClick={() => { setSort("none"); setShowSort(false); }} className="p-2 text-red-600 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer">
+                  Quitar orden
+                </div>
+              </div>
+            )}
           </div>
         </div>
+      </div>
 
         {/* Filters */}
         <div className="flex items-center justify-between mb-4">
