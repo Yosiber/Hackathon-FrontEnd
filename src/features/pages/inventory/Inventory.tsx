@@ -193,7 +193,7 @@ export default function Inventary() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
-           <div className="p-2 rounded-md bg-white dark:bg-gray-800 shadow-sm">
+           <div className="p-2 rounded-xl bg-white/80 dark:bg-gray-800 shadow-[0_0_10px_0px_rgba(0,0,0,0.15)]">
               <span className="material-symbols-outlined text-gray-600 dark:text-gray-200" 
                style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>
                inventory_2
@@ -209,7 +209,7 @@ export default function Inventary() {
           <div className="flex items-center gap-3">
             <div className="relative">
             <button
-              className="p-2 rounded-md bg-white dark:bg-gray-800 shadow-sm"
+              className="p-2 rounded-xl bg-white/80 dark:bg-gray-800 shadow-[0_0_10px_0px_rgba(0,0,0,0.15)]"
               onClick={() => setShowSort(!showSort)}
             >
             <span className="text-gray-600 dark:text-gray-200">
@@ -279,7 +279,7 @@ export default function Inventary() {
         </div>
 
         {/* Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+        <div className="p-2 rounded-xl bg-white/80 dark:bg-gray-800 shadow-[0_0_10px_0px_rgba(0,0,0,0.15)] overflow-hidden">
           <table className="w-full">
             <thead>
               <tr className="text-xs text-gray-500 dark:text-gray-300 border-b border-gray-100 dark:border-gray-700">
