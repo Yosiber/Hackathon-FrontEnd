@@ -4,12 +4,8 @@ export interface LoginDto {
     password: string;
 }
 
-interface userLoginResponse {
-    sub: string;
-}
-
 export interface LoginResponseDto {
-    user: userLoginResponse;
+    user: UserLoginResponse;
 }
 
 export interface AuthUserDto {
@@ -24,4 +20,8 @@ export interface AuthUserDto {
     profilePictureUrl: string | null,
     createdAt: string;
     updatedAt: string;
+}
+
+export interface UserLoginResponse {
+    sub: string;
 }

@@ -2,16 +2,18 @@ import { useForm } from "react-hook-form";
 import type { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { registerSchema } from "../../schemas/user.schema";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import ErrorAlert from "../../components/form/ErrorAlert";
 import { getFirstFormError } from "../../assets/scripts/getFirstFormError";
 import { useUsers } from "../../context/UserContext";
+import { useAuth } from "../../context/AuthContext";
 
 type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function Register() {
+    const { authUser, loading, setLoading } = useAuth();
     const { signUp, serverError } = useUsers();
     const [ showPassword, setShowPassword ] = useState(false);
 
@@ -33,6 +35,25 @@ export default function Register() {
             reset();
         }
     }
+
+    useEffect(() => {
+        console.log(authUser);
+        if (authUser) {
+            navigate("/");
+        } else {
+            setLoading(false);
+        }
+    }, [authUser, loading]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <span className="material-symbols-outlined animate-spin text-gray-400 !text-5xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                    autorenew
+                </span>
+            </div>
+        );
+    };
 
     return (
         <main className="min-h-screen w-full flex items-center justify-center relative p-6 md:p-12">

@@ -2,13 +2,16 @@ import SidebarItem from "./SidebarItem";
 import ThemeToggle from "../themetoggle/ThemeToggle"
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import userMocks from "../../../data/mock/users";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Sidebar() {
 
   const location = useLocation();
+  const { authUser } = useAuth();
 
-  const imageSrc = `data:image/png;base64,${userMocks[0].imageProfile}`;
+  const avatarSrc = authUser?.profilePictureUrl
+    ? `${authUser?.profilePictureUrl}`
+    : `https://ui-avatars.com/api/?name=${encodeURIComponent(authUser?.name)}&background=2563eb&color=fff&size=160`;
 
   return (
     <aside className="sticky top-0 h-screen w-64 bg-white border-r border-gray-200 flex flex-col justify-between shadow-sm flex-shrink-0 z-40 dark:border-gray-700 dark:bg-gray-800">
@@ -46,10 +49,10 @@ export default function Sidebar() {
         <div className="p-4 border-t border-gray-200 shadow-sm dark:border-gray-700">
           <div className="flex items-center gap-3">
               <div className="w-10 h-10 shadow-[0_0_10px_0px_rgba(0,0,0,0.2)] shadow-blue-500/100 rounded-full bg-blue-100 dark:bg-blue-900 dark:text-blue-300 flex items-center justify-center text-blue-600 font-bold">
-              <img className="rounded-full" src={imageSrc} alt="Profile Image" />
+              <img className="rounded-full" src={avatarSrc} alt="Profile Image" />
             </div>
             <div>
-              <p className="text-sm font-semibold dark:text-white">Staff Principal</p>
+              <p className="text-sm font-semibold dark:text-white capitalize">{authUser?.name}</p>
               <Link to="/profile" className="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 ">
                 Ver perfil
               </Link>

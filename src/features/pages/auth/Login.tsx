@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import type z from "zod";
 import { loginSchema } from "../../schemas/auth.schema";
@@ -13,7 +13,7 @@ type LoginFormValues = z.infer<typeof loginSchema>
 
 export default function Login() {
 
-    const { signIn, serverError } = useAuth();
+    const { signIn, serverError, authUser, loading, setLoading } = useAuth();
     const [ showPassword, setShowPassword ] = useState(false);
 
     const { register, handleSubmit, formState: { errors, isSubmitted }, reset } = useForm({
@@ -24,6 +24,7 @@ export default function Login() {
     const location = useLocation();
     const successRegister = location.state?.successRegister;
     const successLogout = location.state?.successLogout;
+    const sessionExpired = location.state?.sessionExpired;
     const successPassword = location.state?.successPassword;
 
     const errorMessage = getFirstFormError(errors, serverError);
@@ -36,6 +37,25 @@ export default function Login() {
         }
     }
 
+    useEffect(() => {
+        console.log(authUser);
+        if (authUser) {
+            navigate("/");
+        } else {
+            setLoading(false);
+        }
+    }, [authUser, loading]);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <span className="material-symbols-outlined animate-spin text-gray-400 !text-5xl" style={{ fontVariationSettings: "'FILL' 1" }}>
+                    autorenew
+                </span>
+            </div>
+        );
+    };
+
     return (
         <main className="min-h-screen flex items-center justify-center relative px-6 py-12">
             {successRegister && (
@@ -43,6 +63,9 @@ export default function Login() {
             )}
             {successLogout && (
                 <ErrorAlert key={successLogout} message={successLogout} status="success" />
+            )}
+            {sessionExpired && (
+                <ErrorAlert key={sessionExpired} message={sessionExpired} status="success" />
             )}
             {successPassword && (
                 <ErrorAlert key={successPassword} message={successPassword} status="success" />

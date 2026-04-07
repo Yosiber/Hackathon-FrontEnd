@@ -1,14 +1,25 @@
 import { useNavigate } from "react-router-dom";
 import { useSearch } from "../../context/SearchContext";
 import { useNotifications } from "../../context/NotificationsContext";
-import userMocks from "../../../data/mock/users";
+import { useAuth } from "../../context/AuthContext";
 
 export default function Navbar() {
   const { search, setSearch, placeholder } = useSearch();
   const { noLeidas } = useNotifications();
   const navigate = useNavigate();
 
-  const imageSrc = `data:image/png;base64,${userMocks[0].imageProfile}`;
+  const { authUser, logout } = useAuth();
+
+  const avatarSrc = authUser?.profilePictureUrl
+    ? `${authUser?.profilePictureUrl}`
+    : `https://ui-avatars.com/api/?name=${encodeURIComponent(authUser?.name)}&background=2563eb&color=fff&size=160`;
+
+  const logoutAction = async () => {
+    await logout();
+    navigate("/login",{
+      state: { successLogout: "Has cerrado sesión satisfactoriamente" }
+    });
+  };
 
   return (
     <header
@@ -77,7 +88,7 @@ export default function Navbar() {
         </div>
 
         <div>
-          <button className="p-1.5 flex items-center">
+          <button onClick={() => logoutAction()} className="p-1.5 flex items-center">
             <span
               className="material-symbols-outlined text-gray-600 dark:text-gray-100/80 text-on-surface-variant hover:cursor-pointer"
               style={{ fontVariationSettings: "'FILL' 1" }}
@@ -88,7 +99,7 @@ export default function Navbar() {
         </div>
 
         <div className="w-8 h-8 rounded-full flex items-center justify-center">
-          <img className="rounded-full" src={imageSrc} alt="Profile Image" />
+          <img className="rounded-full" src={avatarSrc} alt="Profile Image" />
         </div>
       </div>
     </header>
