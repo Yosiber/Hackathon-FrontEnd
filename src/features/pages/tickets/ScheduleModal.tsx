@@ -1,16 +1,18 @@
 import { Dialog } from "@headlessui/react";
 import { X } from "lucide-react";
-import type { Ticket } from "./AttendModal";
+import type { Ticket } from "../../api/types/tickets.type";
+
+type AgendaTicket = Ticket & { turno: string; paciente: string; hora: string };
 
 interface Props {
   open: boolean;
   onClose: () => void;
-  tickets: Ticket[];
+  tickets: AgendaTicket[];
 }
 
 export default function AgendaModal({ open, onClose, tickets }: Props) {
   const upcomingTickets = tickets
-    .filter(t => t.estado !== "COMPLETADO")
+    .filter(t => t.status !== "pending") // "pending" = completado en tu sistema
     .slice(0, 10);
 
   return (
@@ -32,15 +34,13 @@ export default function AgendaModal({ open, onClose, tickets }: Props) {
           ) : (
             <ul className="divide-y divide-gray-200 dark:divide-gray-700">
               {upcomingTickets.map((t) => (
-                <li key={t.turno} className="flex justify-between py-2">
-                  <div>
-                    <span className="font-semibold text-gray-800 dark:text-gray-100">{t.turno}</span> 
-                    <span className="text-gray-500 dark:text-gray-400">•</span>
+                <li key={t._id} className="flex justify-between py-2">
+                  <div className="flex gap-2">
+                    <span className="font-semibold text-gray-800 dark:text-gray-100">{t.turno}</span>
+                    <span className="text-gray-500">•</span>
                     <span className="text-gray-600 dark:text-gray-300">{t.paciente}</span>
                   </div>
-                  <div className="text-gray-500 dark:text-gray-400 text-sm">
-                    {t.hora || "—"}
-                  </div>
+                  <div className="text-gray-500 dark:text-gray-400 text-sm">{t.hora || "—"}</div>
                 </li>
               ))}
             </ul>
