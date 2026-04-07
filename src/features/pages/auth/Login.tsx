@@ -105,11 +105,10 @@ export default function Login() {
                 </div>
                 <div className="p-8 md:p-16 flex flex-col justify-center">
                     <div className="mb-8">
-                        <nav className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-8">
-                            <span>Inicio</span>
-                            <span className="material-symbols-outlined text-gray-400 !text-[10px]" style={{ fontVariationSettings: "'FILL' 1" }}>chevron_right</span>
-                            <span className="text-blue-700 font-bold">Login</span>
-                        </nav>
+                        <button type="button" onClick={() => navigate("/")} className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-gray-500 hover:text-blue-700 transition-colors mb-8 cursor-pointer bg-transparent border-none p-0">
+                            <span className="material-symbols-outlined !text-[14px]">arrow_back</span>
+                            Volver al Inicio
+                        </button>
                         <h1 className="text-3xl font-extrabold tracking-tight mb-2">
                             Iniciar Sesión
                         </h1>

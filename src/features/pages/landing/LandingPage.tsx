@@ -1,6 +1,7 @@
 import LandingNavbar from "./components/LandingNavbar";
 import LandingHero from "./components/LandingHero";
 import LandingFeatures from "./components/LandingFeatures";
+import LandingCarousel from "./components/LandingCarousel";
 import LandingFooter from "./components/LandingFooter";
 
 export default function LandingPage() {
@@ -10,6 +11,7 @@ export default function LandingPage() {
       <main className="flex-1">
         <LandingHero />
         <LandingFeatures />
+        <LandingCarousel />
       </main>
       <LandingFooter />
     </div>
