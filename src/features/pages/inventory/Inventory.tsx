@@ -223,6 +223,65 @@ export default function Inventary() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-4">
+           <div className="p-2 rounded-xl bg-white/80 dark:bg-gray-800 shadow-[0_0_10px_0px_rgba(0,0,0,0.15)]">
+              <span className="material-symbols-outlined text-gray-600 dark:text-gray-200" 
+               style={{ fontSize: '20px', fontVariationSettings: "'FILL' 1" }}>
+               inventory_2
+              </span>
+             </div>
+          <div>
+            <h1 className="text-2xl font-bold">Inventario — Sede Centro</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-300">
+              Control de suministros y gestión de existencias
+            </p>
+          </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+            <button
+              className="p-2 rounded-xl bg-white/80 dark:bg-gray-800 shadow-[0_0_10px_0px_rgba(0,0,0,0.15)]"
+              onClick={() => setShowSort(!showSort)}
+            >
+            <span className="text-gray-600 dark:text-gray-200">
+              Filtros avanzados
+            </span>
+            </button>
+                {showSort && (
+                  <div className="absolute right-0 mt-2 w-40 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md shadow-md p-2 text-sm">
+                    <div
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer"
+                      onClick={() => { setSort("name"); setShowSort(false); }}
+                    >
+                      Ordenar por nombre
+                    </div>
+                    <div
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer"
+                      onClick={() => { setSort("stock"); setShowSort(false); }}
+                    >
+                      Ordenar por stock
+                    </div>
+                    <div
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer"
+                      onClick={() => { setSort("min"); setShowSort(false); }}
+                    >
+                      Ordenar por stock mínimo
+                    </div>
+                    <div
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer"
+                      onClick={() => { setSort("status"); setShowSort(false); }}
+                    >
+                      Ordenar por estado
+                    </div>
+                    <div
+                      className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer text-red-600"
+                      onClick={() => { setSort("none"); setShowSort(false); }}
+                    >
+                      Quitar orden
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div> 
             <div className="p-2 rounded-md bg-white dark:bg-gray-800 shadow-sm">
               <span className="material-symbols-outlined text-gray-600 dark:text-gray-200"
                 style={{ fontSize: "20px", fontVariationSettings: "'FILL' 1" }}>
@@ -308,7 +367,7 @@ export default function Inventary() {
         </div>
 
         {/* Table */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm overflow-hidden">
+        <div className="p-2 rounded-xl bg-white/80 dark:bg-gray-800 shadow-[0_0_10px_0px_rgba(0,0,0,0.15)] overflow-hidden">
           <table className="w-full">
             <thead>
               <tr className="text-xs text-gray-500 dark:text-gray-300 border-b border-gray-100 dark:border-gray-700">
