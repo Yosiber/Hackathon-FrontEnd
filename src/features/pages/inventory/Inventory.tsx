@@ -6,23 +6,26 @@ import { useEffect } from "react";
 import api from "../../api/axios.instance"
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-
-
+import ScheduleArrivalModal from "./ScheduleArrivalModal";
+import { formatDate } from "./helpers";
 
 type Med = {
-  id: string | number
+  id: string
   name: string
   brand: string
   presentation: string
   stock: number
   min: number
   status: string
+  incomingStock: number
+  reservedIncomingStock: number,
+  repositionDate: string,
   eta: string
 }
 
 const initialMeds: Med[] = [
   {
-    id: 1,
+    id: "1",
     name: "Metformina 850mg",
     brand: "Laboratorios Generics",
     presentation: "Tabletas",
@@ -30,9 +33,12 @@ const initialMeds: Med[] = [
     min: 200,
     status: "DISPONIBLE",
     eta: "--",
+    incomingStock: 10,
+    repositionDate: "2026-04-08T00:00:00.000Z",
+    reservedIncomingStock: 0
   },
   {
-    id: 2,
+    id: "2",
     name: "Ibuprofeno 400mg",
     brand: "FarmaCare Inc.",
     presentation: "Cápsulas blandas",
@@ -40,9 +46,12 @@ const initialMeds: Med[] = [
     min: 50,
     status: "BAJO STOCK",
     eta: "15 de Mayo",
+    incomingStock: 10,
+    repositionDate: "2026-04-08T00:00:00.000Z",
+    reservedIncomingStock: 0
   },
   {
-    id: 3,
+    id: "3",
     name: "Amoxicilina 500mg",
     brand: "BioPharm",
     presentation: "Jarabe",
@@ -50,16 +59,22 @@ const initialMeds: Med[] = [
     min: 15,
     status: "AGOTADO",
     eta: "En camino (12 May)",
+    incomingStock: 10,
+    repositionDate: "2026-04-08T00:00:00.000Z",
+    reservedIncomingStock: 0
   },
   {
-    id: 4,
+    id: "4",
     name: "Losartán 50mg",
     brand: "Vitalis",
     presentation: "Tabletas",
     stock: 450,
     min: 100,
     status: "DISPONIBLE",
-    eta: "--",
+    eta: "--",    
+    incomingStock: 10,
+    repositionDate: "2026-04-08T00:00:00.000Z",
+    reservedIncomingStock: 0
   },
 ]
 
@@ -95,6 +110,9 @@ export default function Inventary() {
   const navigate = useNavigate();
   const [page, setPage] = useState(1)
   const PAGE_SIZE = 10
+
+  // actualizar llegada
+  const [scheduleOpen, setScheduleOpen] = useState(false)
 
   useEffect(() => {
     setPlaceholder("Buscar medicamento...")
@@ -140,6 +158,33 @@ export default function Inventary() {
     filtered.sort((a, b) => order[a.status] - order[b.status])
   }
 
+  const fetchMeds = async () => {
+    try {
+      const res = await api.get("/medications")
+      const mapped = res.data.items.map((m: any) => ({
+        id: m._id,
+        name: m.name,
+        brand: m.laboratory,
+        presentation: m.presentation,
+        stock: m.stock,
+        min: m.minStock,
+        status: mapStatus(m.status),
+        eta: formatDate(m.repositionDate),
+        repositionDate: m.repositionDate,
+        incomingStock: m.incomingStock,
+        reservedIncomingStock: m.reservedIncomingStock
+      }))
+      setData(mapped)
+    } catch (err) {
+      console.error("Error trayendo medicamentos:", err)
+    }
+  }
+
+  // Úsala en el useEffect inicial
+  useEffect(() => {
+    fetchMeds()
+  }, [])
+
   useEffect(() => {
     const fetchMeds = async () => {
       try {
@@ -153,7 +198,10 @@ export default function Inventary() {
           stock: m.stock,
           min: m.minStock,
           status: mapStatus(m.status),
-          eta: "--",
+          eta: formatDate(m.repositionDate),
+          repositionDate: m.repositionDate,
+          incomingStock: m.incomingStock,
+          reservedIncomingStock: m.reservedIncomingStock
         }))
         setData(mapped)
       } catch (err) {
@@ -306,14 +354,41 @@ export default function Inventary() {
                     <Badge status={m.status} />
                   </td>
                   <td className="p-4 text-blue-600 dark:text-blue-400">{m.eta}</td>
-                  <td className="p-4 text-right">
+                  <td className="p-4 flex items-center justify-end gap-2">
                     {isAdmin ? (
-                      <button
-                        onClick={() => { setSelectedMed(m); setOpen(true) }}
-                        className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700"
-                      >
-                        Registrar llegada
-                      </button>
+                      <>
+                        {/* BOTÓN NUEVO: Programar Pedido */}
+                        <button
+                          onClick={() => {
+                            setSelectedMed(m);
+                            setScheduleOpen(true);
+                          }}
+                          className="p-2 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-200 hover:bg-gray-200 hover:text-gray-500 transition-colors flex items-center"
+                          title="Actualizar datos de llegada"
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                            edit_calendar
+                          </span>
+                        </button>
+
+                        {/* BOTÓN EXISTENTE: Registrar llegada física */}
+                        <button
+                          onClick={() => {
+                            if (m.incomingStock > 0) {
+                              setSelectedMed(m);
+                              setOpen(true);
+                            }
+                          }}
+                          disabled={m.incomingStock <= 0}
+                          className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+                            m.incomingStock > 0
+                              ? "bg-blue-600 text-white hover:bg-blue-700"
+                              : "bg-gray-200 text-gray-400 cursor-not-allowed pointer-events-none dark:bg-gray-800"
+                          }`}
+                        >
+                          {m.incomingStock > 0 ? "Recibir" : "Sin pendientes"}
+                        </button>
+                      </>
                     ) : (
                       <button
                         onClick={() => navigate("/tickets")}
@@ -382,6 +457,13 @@ export default function Inventary() {
           open={addOpen}
           setOpen={setAddOpen}
           onCreated={handleMedCreated}
+        />
+
+        <ScheduleArrivalModal
+          open={scheduleOpen}
+          setOpen={setScheduleOpen}
+          med={selectedMed}
+          onUpdated={fetchMeds} // Pasar la función de refresco
         />
       </div>
     </main>
