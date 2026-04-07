@@ -180,35 +180,12 @@ export default function Inventary() {
     }
   }
 
-  // Úsala en el useEffect inicial
   useEffect(() => {
-    fetchMeds()
-  }, [])
-
-  useEffect(() => {
-    const fetchMeds = async () => {
-      try {
-        const res = await api.get("/medications")
-        const json = res.data
-        const mapped = json.items.map((m: any) => ({
-          id: m._id,         
-          name: m.name,
-          brand: m.laboratory,
-          presentation: m.presentation,
-          stock: m.stock,
-          min: m.minStock,
-          status: mapStatus(m.status),
-          eta: formatDate(m.repositionDate),
-          repositionDate: m.repositionDate,
-          incomingStock: m.incomingStock,
-          reservedIncomingStock: m.reservedIncomingStock
-        }))
-        setData(mapped)
-      } catch (err) {
-        console.error("Error trayendo medicamentos:", err)
-      }
+    try {
+      fetchMeds()
+    } catch (error) {
+      console.error("Error trayendo medicamentos:", error);   
     }
-    fetchMeds()
   }, [])
 
   useEffect(() => {
@@ -448,7 +425,7 @@ export default function Inventary() {
             open={open}
             setOpen={setOpen}
             med={selectedMed}
-            onSubmit={updateStock}
+            onSubmit={() => fetchMeds()}
           />
         )}
 

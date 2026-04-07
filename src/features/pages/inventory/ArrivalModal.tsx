@@ -1,7 +1,6 @@
 import { useState } from "react"
 import * as Dialog from "@radix-ui/react-dialog"
 import { BadgeCheck } from "lucide-react"
-import api from "../../api/axios.instance"
 import { receiveShipment } from "../../api/requests/medication.request"
 
 type Med = {
@@ -26,26 +25,26 @@ type Props = {
 
 export default function ArrivalModal({ open, setOpen, med, onSubmit }: Props) {
   const [loading, setLoading] = useState(false)
-  // const [error, setError] = useState("")
   
   if (!med || med.incomingStock <= 0) return null;
 
-  // const validate = () => {
-  //   const value = Number(amount)
-  //   if (!value || value <= 0) {
-  //     setError("La cantidad debe ser un número positivo mayor a 0")
-  //     return false
-  //   }
-  //   setError("")
-  //   return true
-  // }
-
   const handleSubmit = async (id: string) => {
-    try {
-      await receiveShipment(id);
-    } catch (error) {
-      console.error(error);
-    }
+      setLoading(true);
+      try {
+        // 1. Ejecutar la petición al backend
+        await receiveShipment(id);
+        
+        // 2. Ejecutar el callback del padre (que es fetchMeds)
+        onSubmit(med.incomingStock); 
+        
+        // 3. Cerrar el modal automáticamente
+        setOpen(false);
+      } catch (error) {
+        console.error("Error al recibir el lote:", error);
+        alert("Hubo un error al procesar la llegada física.");
+      } finally {
+        setLoading(false);
+      }
   }
 
   return (
@@ -79,19 +78,6 @@ export default function ArrivalModal({ open, setOpen, med, onSubmit }: Props) {
                 </Dialog.Description>
               </div>
             </div>
-{/* 
-            <div className="mt-4">
-              <label className="text-sm text-gray-600 dark:text-gray-300">Cantidad recibida</label>
-              <input
-                type="number"
-                placeholder="Ej: 150"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="w-full px-3 py-2 mt-1 rounded-md bg-gray-100 dark:bg-gray-700 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-green-500"
-                min={1}
-              />
-              {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
-            </div> */}
 
             <div className="mt-6 flex justify-end gap-3">
               <Dialog.Close className="px-4 py-2 rounded-md bg-gray-200">
