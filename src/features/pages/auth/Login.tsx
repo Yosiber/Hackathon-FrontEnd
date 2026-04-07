@@ -14,7 +14,7 @@ type LoginFormValues = z.infer<typeof loginSchema>
 export default function Login() {
 
     const { signIn, serverError, authUser, loading, setLoading } = useAuth();
-    const [ showPassword, setShowPassword ] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
 
     const { register, handleSubmit, formState: { errors, isSubmitted }, reset } = useForm({
         resolver: zodResolver(loginSchema)
@@ -30,9 +30,9 @@ export default function Login() {
     const errorMessage = getFirstFormError(errors, serverError);
 
     const onSubmit = async (data: LoginFormValues) => {
-        const response = await signIn({...data})
+        const response = await signIn({ ...data })
         if (response) {
-            navigate("/");
+            navigate("/dashboard");
             reset();
         }
     }
@@ -40,7 +40,7 @@ export default function Login() {
     useEffect(() => {
         console.log(authUser);
         if (authUser) {
-            navigate("/");
+            navigate("/dashboard");
         } else {
             setLoading(false);
         }
@@ -120,27 +120,27 @@ export default function Login() {
                             <label className="block text-xs font-bold uppercase tracking-widest mb-2 px-1">Correo Electrónico</label>
                             <div className={`group border-b-2 ${errors.email ? "border-red-600" : "border-gray-300 focus-within:border-blue-700"} transition-all`}>
                                 <input type="text" className="w-full bg-transparent border-0 py-3 px-1 font-medium text-lg placeholder:text-gray-400 focus:outline-none" placeholder="nombre@ejemplo.com"
-                                {...register("email")} />
+                                    {...register("email")} />
                             </div>
                         </div>
                         <div className="relative">
                             <div className="flex justify-between items-center pr-2">
                                 <label className="block text-xs font-bold uppercase tracking-widest mb-2 px-1">Contraseña</label>
-                                <a onClick={() => {navigate("/recovery-password"); reset();}} className="text-xs font-semibold text-blue-800 transition-all hover:scale-[1.05] hover:cursor-pointer">Olvidé mi contraseña</a>
+                                <a onClick={() => { navigate("/recovery-password"); reset(); }} className="text-xs font-semibold text-blue-800 transition-all hover:scale-[1.05] hover:cursor-pointer">Olvidé mi contraseña</a>
                             </div>
                             <div className={`group border-b-2 ${errors.password ? "border-red-600" : "border-gray-300 focus-within:border-blue-700"} transition-all flex items-center`}>
                                 <input type={`${showPassword ? "text" : "password"}`} className="w-full bg-transparent border-0 py-3 px-1 font-medium text-lg placeholder:text-gray-400 focus:outline-none" placeholder="••••••••"
-                                {...register("password")} />
+                                    {...register("password")} />
                                 <button className="transition-colors px-2 flex items-center" type="button"
-                                onClick={() => setShowPassword(!showPassword)}>
+                                    onClick={() => setShowPassword(!showPassword)}>
                                     <span className={`${showPassword ? "text-blue-600" : "text-gray-400"} hover:text-gray-900 hover:cursor-pointer material-symbols-outlined`} style={{ fontVariationSettings: "'FILL' 1" }}>visibility</span>
                                 </button>
                             </div>
                         </div>
                         <div className="pt-4">
                             <button className="w-full text-gray-100 py-4 px-8 rounded-xl font-bold tracking-wide shadow-lg hover:scale-[1.02] hover:cursor-pointer transition-all duration-300"
-                            type="submit"
-                            style={{ background: "linear-gradient(135deg, #005dac 0%, #1976d2 100%)" }}>
+                                type="submit"
+                                style={{ background: "linear-gradient(135deg, #005dac 0%, #1976d2 100%)" }}>
                                 Acceder al Portal
                             </button>
                         </div>
@@ -149,7 +149,7 @@ export default function Login() {
                         <p className="text-gray-500 font-semibold mb-4">
                             ¿Aún no tienes una cuenta?
                         </p>
-                        <a onClick={() => {navigate("/register")}} className="inline-flex items-center justify-center px-8 py-3 rounded-full border border-gray-400 text-blue-800 font-bold hover:bg-blue-800 hover:text-gray-100 transition-all hover:cursor-pointer">
+                        <a onClick={() => { navigate("/register") }} className="inline-flex items-center justify-center px-8 py-3 rounded-full border border-gray-400 text-blue-800 font-bold hover:bg-blue-800 hover:text-gray-100 transition-all hover:cursor-pointer">
                             Regístrate ahora
                         </a>
                     </div>

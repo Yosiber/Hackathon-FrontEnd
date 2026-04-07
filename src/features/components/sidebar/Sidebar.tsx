@@ -23,16 +23,16 @@ export default function Sidebar() {
             <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>medical_services</span>
           </div>
           <div>
-              <h1 className="text-xl font-bold text-blue-800 tracking-tight dark:text-blue-400">Coraje</h1>
-              <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest dark:text-gray-300">Centro de Servicio</h2>
+            <h1 className="text-xl font-bold text-blue-800 tracking-tight dark:text-blue-400">Coraje</h1>
+            <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest dark:text-gray-300">Centro de Servicio</h2>
           </div>
         </div>
 
-        
+
 
         {/* Menu */}
         <nav className="mt-4 flex flex-col gap-1">
-          <SidebarItem icon="dashboard" label="Dashboard" to="/" active={location.pathname === "/"} />
+          <SidebarItem icon="dashboard" label="Dashboard" to="/dashboard" active={location.pathname === "/"} />
           <SidebarItem icon="inventory_2" label="Inventario" to="/inventory" active={location.pathname === "/inventory"} />
           <SidebarItem icon="confirmation_number" label="Tickets" to="/tickets" active={location.pathname === "/tickets"} />
           <SidebarItem icon="notifications" label="Notificaciones" to="/notifications" active={location.pathname === "/notifications"} />
@@ -48,7 +48,7 @@ export default function Sidebar() {
         </div>
         <div className="p-4 border-t border-gray-200 shadow-sm dark:border-gray-700">
           <div className="flex items-center gap-3">
-              <div className="w-10 h-10 shadow-[0_0_10px_0px_rgba(0,0,0,0.2)] shadow-blue-500/100 rounded-full bg-blue-100 dark:bg-blue-900 dark:text-blue-300 flex items-center justify-center text-blue-600 font-bold">
+            <div className="w-10 h-10 shadow-[0_0_10px_0px_rgba(0,0,0,0.2)] shadow-blue-500/100 rounded-full bg-blue-100 dark:bg-blue-900 dark:text-blue-300 flex items-center justify-center text-blue-600 font-bold">
               <img className="rounded-full" src={avatarSrc} alt="Profile Image" />
             </div>
             <div>
