@@ -1,25 +1,50 @@
 import { useState } from "react"
 import * as Dialog from "@radix-ui/react-dialog"
 import { BadgeCheck } from "lucide-react"
+import { receiveShipment } from "../../api/requests/medication.request"
+
+type Med = {
+  id: string
+  name: string
+  brand: string
+  presentation: string
+  stock: number
+  min: number
+  status: string
+  incomingStock: number
+  reservedIncomingStock: number
+  eta: string
+}
 
 type Props = {
   open: boolean
   setOpen: (open: boolean) => void
-  med: { name: string } | null
+  med: Med | null
   onSubmit: (cantidad: number) => void
 }
 
 export default function ArrivalModal({ open, setOpen, med, onSubmit }: Props) {
-  const [amount, setAmount] = useState("")
+  const [loading, setLoading] = useState(false)
+  
+  if (!med || med.incomingStock <= 0) return null;
 
-  if (!med) return null   
-
-  const handleSubmit = () => {
-    const value = Number(amount)
-    if (!value || value <= 0) return
-    onSubmit(value)
-    setAmount("")
-    setOpen(false)
+  const handleSubmit = async (id: string) => {
+      setLoading(true);
+      try {
+        // 1. Ejecutar la petición al backend
+        await receiveShipment(id);
+        
+        // 2. Ejecutar el callback del padre (que es fetchMeds)
+        onSubmit(med.incomingStock); 
+        
+        // 3. Cerrar el modal automáticamente
+        setOpen(false);
+      } catch (error) {
+        console.error("Error al recibir el lote:", error);
+        alert("Hubo un error al procesar la llegada física.");
+      } finally {
+        setLoading(false);
+      }
   }
 
   return (
@@ -46,20 +71,12 @@ export default function ArrivalModal({ open, setOpen, med, onSubmit }: Props) {
                 </Dialog.Title>
 
                 <Dialog.Description className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-                  Ingresa la cantidad recibida en este lote.
+                  Desea confirmar la llegada de este lote.<br/>
+                  Total: {med.incomingStock}<br/>
+                  Cantidad comprometida de lote: {med.reservedIncomingStock}<br/>
+                  Nuevo inventario: {med.incomingStock - med.reservedIncomingStock + med.stock} 
                 </Dialog.Description>
               </div>
-            </div>
-
-            <div className="mt-4">
-              <label className="text-sm text-gray-600 dark:text-gray-300">Cantidad recibida</label>
-              <input
-                type="number"
-                placeholder="Ej: 150"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="w-full px-3 py-2 mt-1 rounded-md bg-gray-100"
-              />
             </div>
 
             <div className="mt-6 flex justify-end gap-3">
@@ -68,10 +85,19 @@ export default function ArrivalModal({ open, setOpen, med, onSubmit }: Props) {
               </Dialog.Close>
 
               <button
-                onClick={handleSubmit}
-                className="bg-green-600 text-white px-4 py-2 rounded-md"
+                onClick={() => handleSubmit(med.id)}
+                disabled={loading}
+                className="bg-green-600 text-white px-4 py-2 rounded-md disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
               >
-                Aceptar
+                {loading && (
+                  <span
+                    className="material-symbols-outlined animate-spin"
+                    style={{ fontSize: "16px" }}
+                  >
+                    progress_activity
+                  </span>
+                )}
+                {loading ? "Guardando..." : "Aceptar"}
               </button>
             </div>
           </Dialog.Content>
