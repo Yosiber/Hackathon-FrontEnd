@@ -12,39 +12,51 @@ import { UserProvider } from "./features/context/UserContext"
 import './App.css'
 
 import { BrowserRouter, Routes, Route } from "react-router-dom"
-import { AuthProvider } from "./features/context/AuthContext"
+import { AuthProvider, useAuth } from "./features/context/AuthContext"
 import { ProtectedRoute } from "./features/routesControl/routes"
 import Profile from "./features/profile/Profile"
+import { setupAxiosResponseInterceptor } from "./features/api/axios.instance"
+import { useEffect } from "react"
 
 function App() {
+
+  const { logout } = useAuth();
+
+  // Configuración del Interceptor
+  useEffect(() => {
+    setupAxiosResponseInterceptor(
+      () => {
+        logout();
+      }
+    )
+  }, []);
+
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <UserProvider>
-          <SearchProvider>
-            <NotificationsProvider>
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/verify-registration" element={<InitialVerification />} />
-                <Route path="/*" element={
-                  <MainLayout>
-                    <Routes>
-                      <Route element={<ProtectedRoute requiredRoles={[]} />} >
-                        <Route path="/" element={<Dashboard />} />
-                        <Route path="/tickets" element={<Tickets />} />
-                        <Route path="/inventory" element={<Inventory />} />
-                        <Route path="/notifications" element={<Notifications />} />
-                        <Route path="/profile" element={<Profile />} />
-                      </Route>
-                    </Routes>
-                  </MainLayout>
-                } />
-              </Routes>
-            </NotificationsProvider>
-          </SearchProvider>
-        </UserProvider>
-      </AuthProvider>
+      <UserProvider>
+        <SearchProvider>
+          <NotificationsProvider>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/verify-registration" element={<InitialVerification />} />
+              <Route path="/*" element={
+                <MainLayout>
+                  <Routes>
+                    <Route element={<ProtectedRoute requiredRoles={[]} />} >
+                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/tickets" element={<Tickets />} />
+                      <Route path="/inventory" element={<Inventory />} />
+                      <Route path="/notifications" element={<Notifications />} />
+                      <Route path="/profile" element={<Profile />} />
+                    </Route>
+                  </Routes>
+                </MainLayout>
+              } />
+            </Routes>
+          </NotificationsProvider>
+        </SearchProvider>
+      </UserProvider>
     </BrowserRouter>
   )
 }

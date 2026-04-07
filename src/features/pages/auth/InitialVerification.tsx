@@ -44,7 +44,7 @@ export default function InitialVerification() {
 
     useEffect(() => {
       if (email === undefined || createdUserId === undefined) {
-          navigate("/error/403");
+          navigate("/error/unauthorized");
           return;
       }
     },[email, createdUserId, navigate])

@@ -18,7 +18,6 @@ instance.interceptors.request.use(
 );
 
 export const setupAxiosResponseInterceptor = (
-    openRefresh: () => void,
     logout: () => void
 ): void => {
     instance.interceptors.response.use(
@@ -27,7 +26,6 @@ export const setupAxiosResponseInterceptor = (
             // If Backend returns 401, it means the access token is expired or invalid
             if (error.response?.status === 401) {
                 logout();
-                openRefresh();
             }
             return Promise.reject(error);
         }

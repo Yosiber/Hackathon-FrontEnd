@@ -43,38 +43,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="overflow-hidden fixed top-0 left-64 right-0">
-      <header
-          className="h-16 z-0 bg-white/80 backdrop-blur-xl
-          shadow-[0_10px_10px_-5px] shadow-blue-900/20 flex justify-between items-center px-12
-          dark:bg-gray-800"
-      >
-        <div className="flex-1 max-w-md">
-          <div className="relative group">
-            <span className="material-symbols-outlined absolute text-gray-600 dark:text-gray-100/50 left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"> search </span>
-            <input
-              className="w-full bg-gray-100 dark:bg-gray-600 text-gray-600 dark:text-gray-100 border-none rounded-full py-2 pl-10 pr-4 text-sm hover:ring-2 hover:ring-blue-400/50 dark:hover:ring-blue-600/50
-              focus:outline-none focus:ring-2 focus:ring-blue-200 dark:focus:ring-green-600 focus:ring-opacity-75 transition-all placeholder:text-on-surface-variant/50"
-              placeholder="Buscar medicamento..."
-              type="text"
-            />
-          </div>
-        </div>
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-              <button className="relative p-1.5 flex items-center">
-                  <span className="material-symbols-outlined text-gray-600 dark:text-gray-100/80 text-on-surface-variant hover:cursor-pointer" style={{ fontVariationSettings: "'FILL' 1" }}> notifications </span>
-                  <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 dark:bg-green-500 rounded-full"></span>
-              </button>
-              <button className="p-1.5 flex items-center">
-                  <span className="material-symbols-outlined text-gray-600 dark:text-gray-100/80 text-on-surface-variant hover:cursor-pointer" style={{ fontVariationSettings: "'FILL' 1" }}> help_outline </span>
-              </button>
-          </div>
-          <div className="w-8 h-8 rounded-full flex items-center justify-center">
-              <img className="rounded-full" src={imageSrc} alt="Profile Image" />
-          </div>
-        </div>
-      </header>
+    <div className="overflow-hidden top-0 left-64 right-0">
       <main className="ml-8 pt-5 pl-8 pr-8 pb-12 h-[calc(100vh-64px)] overflow-y-auto">
         <section className="mb-10">
             <h2 className="text-4xl font-black text-on-surface mb-2 dark:text-gray-100 text-center md:text-left">¡Hola, {usersMock[0].name}! 👋</h2>
@@ -177,10 +146,9 @@ export default function Dashboard() {
                         const daysForShipment = hasShipmentDate
                             ? Math.ceil((repositionDate.getTime() - today.getTime()) / (1000 * 3600 * 24)) + 1
                             : null;
-                            console.log(product.name, hasShipmentDate, daysForShipment);
 
                         return (
-                            <div className={`rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 hover:shadow-lg transition-all duration-300 group border-l-4 shadow-sm bg-white/80 dark:bg-gray-800
+                            <div key={index} className={`rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 hover:shadow-lg transition-all duration-300 group border-l-4 shadow-sm bg-white/80 dark:bg-gray-800
                                 ${product.status === "active" ? "border-green-600" : (hasShipmentDate ? "border-orange-400/80" : "border-gray-500")}`}>
                                 <div className="flex items-center gap-6 flex-1">
                                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-secondary

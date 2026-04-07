@@ -3,13 +3,16 @@ import { AxiosError } from "axios";
 
 import {
     loginRequest,
-    getAuthUserProfile
+    getAuthUserProfile,
+    verifyToken,
+    logout as logoutRequest
 } from "../api/requests/auth.request";
 
 import type { LoginDto, AuthUserDto } from '../api/types/auth.type';
 
 interface AuthContextType {
   loading: boolean,
+  setLoading: (loading: boolean) => void,
   serverError: string | null,
   authUser: AuthUserDto | null,
   signIn: (data: LoginDto) => Promise<boolean>,
@@ -19,7 +22,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [serverError, setServerError] = useState<string | null>(null);
   const [authUser, setAuthUser] = useState<AuthUserDto | null>(null);
 
@@ -29,6 +32,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       return () => clearTimeout(setTimeout(() => setServerError(null), 5000));
     }
   }, [serverError]);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      setLoading(true);
+      try {
+        const verifyResponse = await verifyToken();
+        if (verifyResponse.status !== 200) {
+          setAuthUser(null);
+          return;
+        }
+        const userId = verifyResponse.data.sub;
+        if (userId) {
+          const userProfile = await getAuthUserProfile(userId);
+          setAuthUser(userProfile);
+        }
+      } catch {
+        setAuthUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+    checkAuth();
+  }, []);
 
   const signIn = async (loginData: LoginDto): Promise<boolean> => {
     setLoading(true);
@@ -53,17 +79,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const logout = () => {
-    setAuthUser(null);
-    {/** PENDIENTE IMPLEMENTAR SERVICIO BORRADO COOKIE BACKEND */}
-  }
-
-  {/** PENDIENTE CHECKEO DE TOKEN VALIDO */}
+  const logout = async () => {
+    setLoading(true);
+    try {
+      await logoutRequest();
+    } catch (error) {
+      console.error("Error during logout:", error);
+    } finally {
+      setAuthUser(null);
+    }
+  };
 
   return (
     <AuthContext.Provider
       value={{
         loading,
+        setLoading,
         serverError,
         authUser,
         signIn,
