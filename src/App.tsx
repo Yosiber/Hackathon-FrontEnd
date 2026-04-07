@@ -43,7 +43,6 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/verify-registration" element={<InitialVerification />} />
               <Route path="/error/unauthorized" element={<Unauthorized />} />
-              <Route path="/tickets" element={<Tickets />} />
               <Route path="/*" element={
                 <MainLayout>
                   <Routes>
