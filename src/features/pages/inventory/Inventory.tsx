@@ -1,14 +1,13 @@
 import { useState } from "react"
 import ArrivalModal from "./ArrivalModal"
 import AddMedModal from "./AddMedModal"           
-import { useSearch } from "../../context/SearchContext";
-import { useEffect } from "react";
-import api from "../../api/axios.instance"
-import { useAuth } from "../../context/AuthContext";
-import { useNavigate } from "react-router-dom";
-import ScheduleArrivalModal from "./ScheduleArrivalModal";
-import { formatDate } from "./helpers";
-import { getMedications } from "../../api/requests/medication.request";
+import { useSearch } from "../../context/SearchContext"
+import { useEffect } from "react"
+import { useAuth } from "../../context/AuthContext"
+import { useNavigate } from "react-router-dom"
+import ScheduleArrivalModal from "./ScheduleArrivalModal"
+import { formatDate } from "./helpers"
+import { getMedications } from "../../api/requests/medication.request"
 
 type Med = {
   id: string

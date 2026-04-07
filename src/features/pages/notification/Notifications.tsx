@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { useSearch } from "../../context/SearchContext";
 import { useNotifications, type TipoNotificacion, type Notificacion } from "../../context/NotificationsContext";
+import { useAuth } from "../../context/AuthContext";
 
 export type FiltroNotificacion = "todas" | TipoNotificacion | "no_leidas";
 
