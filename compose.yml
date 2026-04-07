@@ -1,0 +1,10 @@
+services:
+  coraje-frontend:
+    build: .
+    image: coraje-frontend:latest
+    container_name: coraje-frontend
+    ports:
+      - "5173:5173"
+    command: npm run dev -- --host 0.0.0.0
+    env_file:
+      - ./.env

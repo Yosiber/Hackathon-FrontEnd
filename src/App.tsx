@@ -12,11 +12,13 @@ import { UserProvider } from "./features/context/UserContext"
 import './App.css'
 
 import { BrowserRouter, Routes, Route } from "react-router-dom"
-import { AuthProvider, useAuth } from "./features/context/AuthContext"
+import { useAuth } from "./features/context/AuthContext"
 import { ProtectedRoute } from "./features/routesControl/routes"
 import Profile from "./features/profile/Profile"
 import { setupAxiosResponseInterceptor } from "./features/api/axios.instance"
 import { useEffect } from "react"
+import Unauthorized from "./features/pages/errors/Unauthorized"
+import NotFound from "./features/pages/errors/NotFound"
 
 function App() {
 
@@ -40,6 +42,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/verify-registration" element={<InitialVerification />} />
+              <Route path="/error/unauthorized" element={<Unauthorized />} />
               <Route path="/*" element={
                 <MainLayout>
                   <Routes>
@@ -49,6 +52,7 @@ function App() {
                       <Route path="/inventory" element={<Inventory />} />
                       <Route path="/notifications" element={<Notifications />} />
                       <Route path="/profile" element={<Profile />} />
+                      <Route path="*" element={<NotFound />} />
                     </Route>
                   </Routes>
                 </MainLayout>
