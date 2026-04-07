@@ -60,7 +60,7 @@ export default function LandingCarousel() {
         <div className="relative bg-white border border-gray-100/50 rounded-[3rem] p-8 md:p-16 shadow-2xl shadow-blue-900/10 mx-auto backdrop-blur-sm">
           <Quote className="mx-auto text-blue-200 mb-8 transform -scale-x-100" size={80} style={{ fill: 'currentColor' }} />
           
-          <div className="relative h-72 md:h-48 overflow-hidden flex items-center justify-center">
+          <div className="relative h-96 md:h-72 overflow-hidden flex items-center justify-center">
             {testimonials.map((testimonial, index) => (
               <div 
                 key={testimonial.id}
@@ -69,7 +69,7 @@ export default function LandingCarousel() {
                   index < currentIndex ? "opacity-0 -translate-x-12" : "opacity-0 translate-x-12"
                 }`}
               >
-                <p className="text-2xl md:text-3xl font-medium text-gray-800 italic leading-relaxed max-w-3xl mx-auto">
+                <p className="text-xl md:text-2xl font-medium text-gray-800 italic leading-relaxed max-w-3xl mx-auto">
                   "{testimonial.content}"
                 </p>
                 <div className="mt-8 flex items-center justify-center gap-5">
