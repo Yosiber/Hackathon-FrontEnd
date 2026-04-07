@@ -7,4 +7,9 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
+  server: {
+    allowedHosts: [
+      'coraje.daisyflows.top'
+    ]
+  }
 })
