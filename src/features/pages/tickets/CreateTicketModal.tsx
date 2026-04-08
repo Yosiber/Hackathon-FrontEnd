@@ -1,39 +1,44 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { X, Plus, Trash2, ShoppingBag } from "lucide-react"
 import { useAuth } from "../../context/AuthContext"
+import { getMedications } from "../../api/requests/medication.request"
+import { createTicket } from "../../api/requests/ticket.request" // Asegúrate de tener esta función en tus requests
 
-
-// ---------- tipos ----------
+// ---------- tipos locales ----------
 type MedItem = {
   productId: string
   productName: string
   quantity: number
 }
 
-// ---------- mock de medicamentos disponibles (reemplazar con fetch real) ----------
-const AVAILABLE_MEDS = [
-  { id: "med-1", name: "Metformina 850mg" },
-  { id: "med-2", name: "Ibuprofeno 400mg" },
-  { id: "med-3", name: "Insulina NPH" },
-  { id: "med-4", name: "Amoxicilina 500mg" },
-  { id: "med-5", name: "Paracetamol 1g" },
-  { id: "med-6", name: "Loratadina 10mg" },
-  { id: "med-7", name: "Losartán 50mg" },
-]
-
 interface Props {
   open: boolean
   onClose: () => void
-  // cuando tengas el backend: onCreated?: (ticket: Ticket) => void
 }
 
 export default function CreateTicketModal({ open, onClose }: Props) {
-  const { authUser } = useAuth()   // ← añadir esta línea
-  const [items, setItems] = useState<MedItem[]>([])
+  const { authUser } = useAuth()
+  const [availableMeds, setAvailableMeds] = useState<{ _id: string, name: string }[]>([])
+  const [items, setItems] = useState<MedItem[]>([{ productId: "", productName: "", quantity: 1 }])
   const [observations, setObservations] = useState("")
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
-  
+
+  // 1. Cargar medicamentos reales al abrir el modal
+  useEffect(() => {
+    if (open) {
+      const fetchMeds = async () => {
+        try {
+          const response = await getMedications({ limit: 100, status: "DISPONIBLE" })
+          // Ajusta esto según si tu API devuelve .items o el array directo
+          setAvailableMeds(response.items || response) 
+        } catch (error) {
+          console.error("Error cargando medicamentos:", error)
+        }
+      }
+      fetchMeds()
+    }
+  }, [open])
 
   if (!open) return null
 
@@ -49,7 +54,7 @@ export default function CreateTicketModal({ open, onClose }: Props) {
       prev.map((item, i) => {
         if (i !== idx) return item
         if (field === "productId") {
-          const found = AVAILABLE_MEDS.find(m => m.id === value)
+          const found = availableMeds.find(m => m._id === value)
           return { ...item, productId: String(value), productName: found?.name ?? "" }
         }
         return { ...item, [field]: value }
@@ -60,32 +65,24 @@ export default function CreateTicketModal({ open, onClose }: Props) {
   const isValid = items.every(i => i.productId && i.quantity >= 1)
 
   const handleSubmit = async () => {
-    const bodyParaBackend = {
-    customerId: authUser?._id,
-    status: "registered",
-    fulfillmentStatus: "waiting",
-    items: items.map(item => ({
-      productId: item.productId,
-      productName: item.productName, // Ya lo tienes en tu estado local
-      quantity: item.quantity,
-      unitPrice: 0, // El backend debería calcular esto, pero el esquema lo pide
-      deliveryType: "immediate" // Valor por defecto
-    })),
-    totalAmount: 0, // Lo calculará el backend
-    observations: observations ? [observations] : []
-  };
-  
-  console.log("Enviando al backend:", bodyParaBackend);
-    if (!isValid) return
+    if (!isValid || !authUser) return
+    
     setLoading(true)
+    
+    // Mapeo exacto al DTO de tu backend
+    const bodyParaBackend = {
+      customerId: authUser._id,
+      products: items.map(item => ({
+        productId: item.productId,
+        qty: item.quantity // Usamos 'qty' como en tu CreateTicketItemDto
+      }))
+      // Si el backend soporta observaciones, agrégalas aquí
+    }
+
     try {
-      // TODO: conectar con createTicket del service
-      // const dto: CreateTicketDto = {
-      //   customerId: authUser!.id,
-      //   items: items.map(i => ({ productId: i.productId, quantity: i.quantity })),
-      // }
-      // await createTicket(dto)
-      await new Promise(r => setTimeout(r, 900)) // simulación
+      // Reemplaza esto con tu llamada real: await createTicket(bodyParaBackend)
+      await createTicket(bodyParaBackend as any) 
+      
       setSuccess(true)
       setTimeout(() => {
         setSuccess(false)
@@ -94,23 +91,19 @@ export default function CreateTicketModal({ open, onClose }: Props) {
         onClose()
       }, 1500)
     } catch (err) {
-      console.error(err)
+      console.error("Error al crear ticket:", err)
+      alert("No se pudo crear el ticket. Verifica el stock o tu conexión.")
     } finally {
       setLoading(false)
     }
   }
 
-  // ── render ──
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
 
       <div className="relative z-10 w-full max-w-lg bg-white dark:bg-gray-900 rounded-2xl shadow-2xl mx-4 overflow-hidden">
-        {/* ── Header ── */}
+        {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400">
@@ -118,70 +111,46 @@ export default function CreateTicketModal({ open, onClose }: Props) {
             </div>
             <div>
               <h2 className="font-bold text-gray-900 dark:text-gray-100">Solicitar Medicamentos</h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Tu solicitud generará un ticket en cola
-              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Tu solicitud generará un ticket en cola</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          >
+          <button onClick={onClose} className="p-1.5 rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
             <X size={18} />
           </button>
         </div>
 
-        {/* ── Body ── */}
+        {/* Body */}
         <div className="px-6 py-5 space-y-4 max-h-[60vh] overflow-y-auto">
-
-          {/* lista de medicamentos */}
           <div className="space-y-3">
-            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-              Medicamentos solicitados
-            </label>
+            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Medicamentos solicitados</label>
 
             {items.map((item, idx) => (
-              <div
-                key={idx}
-                className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700"
-              >
-                {/* selector de medicamento */}
+              <div key={idx} className="flex items-center gap-2 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">
                 <select
                   value={item.productId}
                   onChange={e => updateItem(idx, "productId", e.target.value)}
                   className="flex-1 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Seleccionar medicamento…</option>
-                  {AVAILABLE_MEDS.map(m => (
-                    <option key={m.id} value={m.id}>{m.name}</option>
+                  {availableMeds.map(m => (
+                    <option key={m._id} value={m._id}>{m.name}</option>
                   ))}
                 </select>
 
-                {/* cantidad */}
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => updateItem(idx, "quantity", Math.max(1, item.quantity - 1))}
                     className="w-7 h-7 rounded-md bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-500 font-bold text-sm"
-                  >
-                    −
-                  </button>
-                  <span className="w-8 text-center text-sm font-semibold text-gray-800 dark:text-gray-100">
-                    {item.quantity}
-                  </span>
+                  > − </button>
+                  <span className="w-8 text-center text-sm font-semibold text-gray-800 dark:text-gray-100">{item.quantity}</span>
                   <button
                     onClick={() => updateItem(idx, "quantity", item.quantity + 1)}
                     className="w-7 h-7 rounded-md bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-500 font-bold text-sm"
-                  >
-                    +
-                  </button>
+                  > + </button>
                 </div>
 
-                {/* eliminar */}
                 {items.length > 1 && (
-                  <button
-                    onClick={() => removeItem(idx)}
-                    className="p-1.5 rounded-lg text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                  >
+                  <button onClick={() => removeItem(idx)} className="p-1.5 rounded-lg text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
                     <Trash2 size={15} />
                   </button>
                 )}
@@ -196,56 +165,31 @@ export default function CreateTicketModal({ open, onClose }: Props) {
             </button>
           </div>
 
-          {/* observaciones */}
           <div className="space-y-1">
-            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-              Observaciones <span className="font-normal text-gray-400">(opcional)</span>
-            </label>
+            <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Observaciones</label>
             <textarea
-              rows={3}
+              rows={2}
               value={observations}
               onChange={e => setObservations(e.target.value)}
-              placeholder="Ej: Necesito el medicamento urgente, tengo alergia a…"
-              className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-800 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              placeholder="Ej: Entrega en recepción..."
+              className="w-full bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-3 py-2 text-sm text-gray-800 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
             />
           </div>
-
-          {/* resumen */}
-          {items.some(i => i.productName) && (
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl p-3">
-              <p className="text-xs font-semibold text-blue-700 dark:text-blue-400 mb-2">Resumen del pedido</p>
-              <ul className="space-y-1">
-                {items.filter(i => i.productName).map((i, idx) => (
-                  <li key={idx} className="flex justify-between text-xs text-blue-800 dark:text-blue-300">
-                    <span>{i.productName}</span>
-                    <span className="font-semibold">× {i.quantity}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
         </div>
 
-        {/* ── Footer ── */}
+        {/* Footer */}
         <div className="px-6 py-4 border-t border-gray-100 dark:border-gray-800 flex items-center justify-end gap-3">
-          <button
-            onClick={onClose}
-            className="px-4 py-2 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-          >
+          <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800">
             Cancelar
           </button>
           <button
             onClick={handleSubmit}
             disabled={!isValid || loading || success}
             className={`px-5 py-2 rounded-lg text-sm font-semibold transition-all ${
-              success
-                ? "bg-green-600 text-white"
-                : isValid
-                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                : "bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed"
+              success ? "bg-green-600 text-white" : isValid ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-gray-200 dark:bg-gray-700 text-gray-400 cursor-not-allowed"
             }`}
           >
-            {success ? "✓ Ticket enviado" : loading ? "Enviando…" : "Confirmar Solicitud"}
+            {success ? "✓ Enviado" : loading ? "Procesando..." : "Confirmar Solicitud"}
           </button>
         </div>
       </div>
