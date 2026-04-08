@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useSearch } from "../../context/SearchContext";
 import { useNotifications } from "../../context/NotificationsContext";
 import { useAuth } from "../../context/AuthContext";
+import FAQModal from "./FAQModal";
 
 export default function Navbar() {
   const { search, setSearch, placeholder } = useSearch();
@@ -16,7 +17,7 @@ export default function Navbar() {
 
   const logoutAction = async () => {
     await logout();
-    navigate("/login",{
+    navigate("/login", {
       state: { successLogout: "Has cerrado sesión satisfactoriamente" }
     });
   };
@@ -66,14 +67,16 @@ export default function Navbar() {
             )}
           </button>
 
-          <button className="p-1.5 flex items-center">
-            <span
-              className="material-symbols-outlined text-gray-600 dark:text-gray-100/80 text-on-surface-variant hover:cursor-pointer"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              help_outline
-            </span>
-          </button>
+          <FAQModal>
+            <button className="p-1.5 flex items-center group -mr-4">
+              <span
+                className="material-symbols-outlined text-gray-600 dark:text-gray-100/80 text-on-surface-variant hover:cursor-pointer group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+              >
+                help_outline
+              </span>
+            </button>
+          </FAQModal>
         </div>
 
         <div>

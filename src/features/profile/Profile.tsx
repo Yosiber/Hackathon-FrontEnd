@@ -88,8 +88,10 @@ export default function Profile() {
   };
 
   const avatarSrc = formData.imageProfile
-    ? `data:image/png;base64,${formData.imageProfile}`
-    : `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || '')}&background=2563eb&color=fff&size=160`;
+    ? (formData.imageProfile.startsWith("http") || formData.imageProfile.startsWith("data:") || formData.imageProfile.startsWith("/"))
+      ? formData.imageProfile
+      : `data:image/png;base64,${formData.imageProfile}`
+    : `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.name || authUser?.name || '')}&background=2563eb&color=fff&size=160`;
 
   return (
     <main className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
