@@ -7,7 +7,7 @@ import AgendaModal from "./ScheduleModal"
 import CreateTicketModal from "./CreateTicketModal"
 import ConfirmCancelModal from "./ConfirmCancelModal"
 import type { Ticket } from "../../api/types/tickets.type"
-import { getTickets, patchTicket } from "../../api/requests/ticket.request"
+import { getTickets, patchTicket, deleteTicket } from "../../api/requests/ticket.request"
 import { mapTicketToView } from "./helpers"
 
 export type ViewTicket = Ticket & {
@@ -20,13 +20,19 @@ export type ViewTicket = Ticket & {
 const statusLabel: Record<string, string> = {
   waiting: "EN ESPERA",
   "partially-completed": "ENTREGA PARCIAL",
-  completed: "FINALIZADO",
+  completed: "COMPLETADO",
+  registered: "REGISTRADO",
+  "in-progress": "EN PROCESO",
+  pending: "PENDIENTE",
 };
 
 const statusBadge: Record<string, string> = {
   waiting: "bg-red-100 text-red-600",
   "partially-completed": "bg-sky-100 text-sky-600",
   completed: "bg-green-100 text-green-600",
+  registered: "bg-blue-100 text-blue-600",
+  "in-progress": "bg-purple-100 text-purple-600",
+  pending: "bg-orange-100 text-orange-600",
 };
 
 export default function Tickets() {
@@ -71,9 +77,9 @@ export default function Tickets() {
       setTickets(mapped)
       
       setCounts({
-        waiting: response.counts.waiting || 0,
-        partiallyCompleted: response.counts["partially-completed"] || 0,
-        completed: response.counts.completed || 0
+        waiting: response.counts?.waiting || 0,
+        partiallyCompleted: response.counts?.partiallyCompleted || response.counts?.["partially-completed"] || 0,
+        completed: response.counts?.completed || 0
       })
     } catch (error) {
       console.error("Error al obtener tickets:", error)
@@ -107,7 +113,14 @@ export default function Tickets() {
     if (!confirmData) return
     setCancelLoading(true)
     try {
-      await patchTicket(confirmData.ticketId, { productIds: confirmData.productIds } as any)
+      if (confirmData.isFull) {
+        await deleteTicket(confirmData.ticketId)
+      } else {
+        await patchTicket(confirmData.ticketId, { 
+          products: confirmData.productIds.map(id => ({ productId: id })) 
+        } as any)
+      }
+      
       setMensaje(confirmData.isFull ? "Ticket cancelado y stock liberado" : "Medicamento eliminado")
       setOpenConfirm(false)
       loadTickets()

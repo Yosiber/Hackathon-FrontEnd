@@ -74,13 +74,12 @@ export default function CreateTicketModal({ open, onClose }: Props) {
       customerId: authUser._id,
       products: items.map(item => ({
         productId: item.productId,
-        qty: item.quantity // Usamos 'qty' como en tu CreateTicketItemDto
-      }))
-      // Si el backend soporta observaciones, agrégalas aquí
+        qty: item.quantity
+      })),
+      observations: observations ? [observations] : []
     }
 
     try {
-      // Reemplaza esto con tu llamada real: await createTicket(bodyParaBackend)
       await createTicket(bodyParaBackend as any) 
       
       setSuccess(true)
