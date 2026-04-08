@@ -37,4 +37,5 @@ export interface PatchTicketDto {
   status?: TicketStatus;
   fulfillmentStatus?: FulfillmentStatus;
   observations?: string[];
+  products?: { productId: string }[];
 }

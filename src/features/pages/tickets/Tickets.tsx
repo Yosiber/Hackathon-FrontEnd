@@ -1,68 +1,34 @@
-import { DownloadCloud, CheckCircle, AlertTriangle, Truck, Phone } from "lucide-react"
+import { DownloadCloud, CheckCircle, Phone, X, Trash2, Plus } from "lucide-react"
 import { useEffect, useState } from "react"
-import { Link } from "react-router-dom"
 import { useSearch } from "../../context/SearchContext"
 import { useAuth } from "../../context/AuthContext"
 import ModalAtender from "./AttendModal"
 import AgendaModal from "./ScheduleModal"
 import CreateTicketModal from "./CreateTicketModal"
-import type { Ticket, TicketStatus } from "../../api/types/tickets.type"
+import ConfirmCancelModal from "./ConfirmCancelModal"
+import type { Ticket } from "../../api/types/tickets.type"
+import { getTickets, patchTicket, deleteTicket } from "../../api/requests/ticket.request"
+import { mapTicketToView } from "./helpers"
 
-
-
-type ViewTicket = Ticket & {
+export type ViewTicket = Ticket & {
   turno: string;
   paciente: string;
   hora: string;
   disponibilidad: string; 
 }
 
-// El sampleTicket también necesita disponibilidad
-const sampleTickets: ViewTicket[] = [
-  {
-    _id: "69d2bdd...",
-    ticketNumber: "TI-20260405-001",
-    items: [
-      {
-        productId: "med-1",
-        productName: "Metformina 850mg",
-        quantity: 1,
-        unitPrice: 1500,
-        deliveryType: "immediate"
-      }
-    ],
-    status: "registered",
-    fulfillmentStatus: "waiting",
-    totalAmount: 1500,
-    customerId: "user-123",
-    observations: [],
-    turno: "A-101",
-    paciente: "Carlos Gomez",
-    hora: "08:30",
-    disponibilidad: "1 de 1",  // ← añadir
-  }
-];
-
-const statusLabel: Record<TicketStatus, string> = {
-  registered: "POR ATENDER",
-  "in-progress": "EN VENTANILLA",
-  pending: "FINALIZADO",
+const statusLabel: Record<string, string> = {
+  waiting: "EN ESPERA",
+  "partially-completed": "ENTREGA PARCIAL",
+  completed: "COMPLETADO"
 };
 
-const statusBadge: Record<TicketStatus, string> = {
-  registered: "bg-red-100 text-red-600",
-  "in-progress": "bg-sky-100 text-sky-600",
-  pending: "bg-green-100 text-green-600",
+const statusBadge: Record<string, string> = {
+  waiting: "bg-red-100 text-red-600",
+  "partially-completed": "bg-sky-100 text-sky-600",
+  completed: "bg-green-100 text-green-600"
 };
-const contarPorEstado = (tickets: ViewTicket[]) => ({
-  registered: tickets.filter(t => t.status === "registered").length,
-  "in-progress": tickets.filter(t => t.status === "in-progress").length,
-  pending: tickets.filter(t => t.status === "pending").length,
-})
 
-
-
-// ---------- componente ----------
 export default function Tickets() {
   const { search, setPlaceholder } = useSearch()
   const { authUser } = useAuth()
@@ -70,69 +36,123 @@ export default function Tickets() {
   const isEmployee = authUser?.role === "empleado"
   const canManage = isAdmin || isEmployee
 
-  const [tickets, setTickets] = useState<ViewTicket[]>(sampleTickets)
+  const [tickets, setTickets] = useState<ViewTicket[]>([])
+  const [loading, setLoading] = useState(true)
+  const [mensaje, setMensaje] = useState("")
+  
+  const [statusFilter, setStatusFilter] = useState<string | "all">("all")
+  const [counts, setCounts] = useState({ waiting: 0, partiallyCompleted: 0, completed: 0 })
+
+  // Modales de flujo
   const [openModal, setOpenModal] = useState(false)
   const [activeTicket, setActiveTicket] = useState<ViewTicket | null>(null)
   const [openAgenda, setOpenAgenda] = useState(false)
   const [openCreate, setOpenCreate] = useState(false)
-  const [mensaje, setMensaje] = useState("")
 
-  const counts = contarPorEstado(tickets)
+  // Nuevo estado para el modal de confirmación de eliminación
+  const [openConfirm, setOpenConfirm] = useState(false)
+  const [cancelLoading, setCancelLoading] = useState(false)
+  const [confirmData, setConfirmData] = useState<{
+    ticketId: string;
+    productIds: string[];
+    names: string[];
+    isFull: boolean;
+  } | null>(null)
 
-  const stats = [
-    { label: "TICKETS PENDIENTES",  value: counts.registered,    color: "border-blue-400"   },
-    { label: "EN ATENCIÓN",          value: counts["in-progress"], color: "border-yellow-400" },
-    { label: "COMPLETADOS HOY",      value: counts.pending,        color: "border-green-400"  },
-  ]
-
-  
-  useEffect(() => { setPlaceholder("Buscar turno o paciente...") }, [])
-
-  const filteredTickets = tickets.filter(t =>
-    t.turno.toLowerCase().includes(search.toLowerCase()) ||
-    t.paciente.toLowerCase().includes(search.toLowerCase())
-  )
-
-  const handleConfirmAtender = (ticket: ViewTicket) => {
-    setTickets(prev =>
-      prev.map(t =>
-        t._id === ticket._id ? { ...t, status: "in-progress" as const } : t
-      )
-    )
+  const loadTickets = async () => {
+    try {
+      setLoading(true)
+      const response = await getTickets({ 
+        limit: 50
+      })
+      
+      const mapped = response.items.map(mapTicketToView)
+      setTickets(mapped)
+      
+    
+      setCounts({
+        waiting: mapped.filter((t: ViewTicket) => t.fulfillmentStatus === 'waiting').length,
+        partiallyCompleted: mapped.filter((t: ViewTicket) => t.fulfillmentStatus === 'partially-completed').length,
+        completed: mapped.filter((t: ViewTicket) => t.fulfillmentStatus === 'completed').length
+      })
+    } catch (error) {
+      console.error("Error al obtener tickets:", error)
+      setMensaje("Error al conectar con el servidor.")
+    } finally {
+      setLoading(false)
+    }
   }
 
-  
-  const handleCompletar = (ticket: ViewTicket) => {
-    const match = /(\d+)\s+de\s+(\d+)/.exec(ticket.disponibilidad)
-    if (!match) return
-    if (parseInt(match[1]) === parseInt(match[2])) {
-      setTickets(prev =>
-        prev.map(t =>
-          t._id === ticket._id ? { ...t, status: "pending" as const } : t
-        )
-      )
-    } else {
-      setMensaje("No se puede completar: no todos los medicamentos están disponibles.")
+  useEffect(() => {
+    loadTickets()
+  }, [])
+
+  useEffect(() => { 
+    setPlaceholder("Buscar turno o paciente...") 
+  }, [])
+
+  // Abre el modal de confirmación con los datos necesarios
+  const prepareCancel = (ticketId: string, items: {productId: string, productName: string}[], isFull: boolean) => {
+    setConfirmData({
+      ticketId,
+      productIds: items.map(i => i.productId),
+      names: items.map(i => i.productName),
+      isFull
+    })
+    setOpenConfirm(true)
+  }
+
+  // Ejecuta la petición al backend desde el modal
+  const handleExecuteCancel = async () => {
+    if (!confirmData) return
+    setCancelLoading(true)
+    try {
+      // Para cancelar todo el ticket de forma segura en el nuevo backend, usamos siempre el patch de cancel-items
+      // ya que el endpoint /purge solo permite eliminar si el estado es 'waiting'. El patch si lo vacía lo elimina internamente.
+      await patchTicket(confirmData.ticketId, { 
+        products: confirmData.productIds.map(id => ({ productId: id })) 
+      } as any)
+      
+      setMensaje(confirmData.isFull ? "Ticket cancelado completamente y stock liberado" : "Medicamento eliminado")
+      setOpenConfirm(false)
+      loadTickets()
+    } catch (error) {
+      console.error("Error al cancelar:", error)
+      setMensaje("Error al procesar la cancelación.")
+    } finally {
+      setCancelLoading(false)
       setTimeout(() => setMensaje(""), 3000)
     }
   }
 
-  const handleDescargarReporte = async () => {
-    const response = await fetch("/api/reporte-pdf")
-    const blob = await response.blob()
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = "reporte_tickets.pdf"
-    a.click()
+  const filteredTickets = tickets.filter(t =>
+    (statusFilter === "all" || t.fulfillmentStatus === statusFilter) &&
+    (t.turno.toLowerCase().includes(search.toLowerCase()) ||
+     t.paciente.toLowerCase().includes(search.toLowerCase()))
+  )
+
+  const stats = [
+    { label: "EN ESPERA", value: counts.waiting, color: "border-red-400", key: "waiting" },
+    { label: "ENTREGA PARCIAL", value: counts.partiallyCompleted, color: "border-sky-400", key: "partially-completed" },
+    { label: "COMPLETADOS", value: counts.completed, color: "border-green-400", key: "completed" },
+  ]
+
+  const handleOpenDetails = (ticket: ViewTicket) => {
+    setActiveTicket(ticket)
+    setOpenModal(true)
+  }
+
+  const handleConfirmAtender = (ticket: ViewTicket) => {
+    // Aquí el ModalAtender puede llamar a otra función si el backend soportara marcar como entregado definitivamente.
+    // Actualmente el backend asume 'registered' como 'completado' si no hay items esperando.
+    loadTickets()
+    setOpenModal(false)
   }
 
   return (
     <main className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
-
-      {/* Toast */}
       {mensaje && (
-        <div className="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow-lg z-50">
+        <div className="fixed top-4 right-4 bg-gray-800 text-white px-4 py-2 rounded shadow-lg z-50 border-l-4 border-blue-500 animate-bounce">
           {mensaje}
         </div>
       )}
@@ -140,43 +160,21 @@ export default function Tickets() {
       {/* Header */}
       <div className="flex items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-4">
-          <div className="p-2 rounded-md bg-white dark:bg-gray-800 shadow-sm">
-            <span
-              className="material-symbols-outlined text-gray-600 dark:text-gray-200"
-              style={{ fontSize: "20px", fontVariationSettings: "'FILL' 1" }}
-            >
-              confirmation_number
-            </span>
+          <div className="p-2 rounded-md bg-white dark:bg-gray-800 shadow-sm text-gray-600 dark:text-gray-200">
+             <span className="material-symbols-outlined" style={{ fontSize: "20px" }}>confirmation_number</span>
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-              Tickets de hoy — Sede Centro
-            </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Lunes, 24 de Mayo · Turno Mañana
-            </p>
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Tickets de hoy</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Gestión de inventario y dispensación</p>
           </div>
         </div>
-
-        <div className="flex items-center gap-3">
-          {/* Usuario normal: crear ticket */}
+        <div className="flex gap-3">
           {!canManage && (
-            <button
-              onClick={() => setOpenCreate(true)}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm font-medium"
-            >
-              + Solicitar Ticket
-            </button>
+            <button onClick={() => setOpenCreate(true)} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm font-medium">+ Solicitar Ticket</button>
           )}
-
-          {/* Admin/empleado: descargar reporte */}
           {canManage && (
-            <button
-              onClick={handleDescargarReporte}
-              className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-md shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700"
-            >
-              <DownloadCloud size={16} />
-              Descargar Reporte
+            <button className="flex items-center gap-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-200 dark:border-gray-700 px-4 py-2 rounded-md shadow-sm hover:bg-gray-50">
+              <DownloadCloud size={16} /> Reporte
             </button>
           )}
         </div>
@@ -185,186 +183,132 @@ export default function Tickets() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         {stats.map(s => (
-          <div key={s.label} className={`bg-white/80 dark:bg-gray-800 p-4 rounded-xl shadow-[0_0_10px_0px_rgba(0,0,0,0.15)] border-l-4 ${s.color}`}>
-            <p className="text-xs text-gray-500 dark:text-gray-400">{s.label}</p>
+          <button 
+            key={s.label} 
+            onClick={() => setStatusFilter(statusFilter === s.key ? "all" : s.key)}
+            className={`text-left bg-white dark:bg-gray-800 p-4 rounded-md shadow-sm border-l-4 transition-all ${s.color} ${statusFilter === s.key ? 'ring-2 ring-blue-400 scale-[1.02]' : ''}`}
+          >
+            <p className="text-xs text-gray-500 dark:text-gray-400 font-bold">{s.label}</p>
             <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{s.value}</p>
-          </div>
+          </button>
         ))}
       </div>
 
-      {/* Table */}
-      <section className="bg-white/80 dark:bg-gray-800 rounded-xl shadow-[0_0_10px_0px_rgba(0,0,0,0.15)] p-6">
+      {/* Tabla */}
+      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6 overflow-hidden">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-100">
-            Cola de Atención Activa
-          </h3>
-          <div className="text-sm text-gray-400 dark:text-gray-500">• Pendiente &nbsp; • En Proceso</div>
+          <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-100">Cola de Atención</h3>
+          {statusFilter !== "all" && (
+            <button onClick={() => setStatusFilter("all")} className="text-xs text-blue-600 font-bold hover:underline">MOSTRAR TODO</button>
+          )}
         </div>
 
-        <table className="w-full table-auto text-left text-sm">
+        <table className="w-full text-sm">
           <thead>
-            <tr className="text-xs text-gray-500 text-center dark:text-gray-400 border-b border-gray-200 dark:border-gray-700">
-              <th className="py-3 w-28"># TURNO</th>
-              <th className="py-3">PACIENTE</th>
-              <th className="py-3">MEDICAMENTOS SOLICITADOS</th>
-              <th className="py-3">DISPONIBILIDAD</th>
-              <th className="py-3">ESTADO</th>
-              <th className="py-3">ACCIONES</th>
+            <tr className="text-xs text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700 uppercase text-center">
+              <th className="py-3"># Turno</th>
+              <th className="py-3 text-left">Paciente</th>
+              <th className="py-3">Medicamentos</th>
+              <th className="py-3">Disponibilidad</th>
+              <th className="py-3">Estado</th>
+              <th className="py-3">Acciones</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100 dark:divide-gray-700 text-center">
-            {filteredTickets.map(t => (
-              <tr key={t.turno} className="border-b last:border-b-0 border-gray-100 dark:border-gray-700">
-                <td className="py-4 text-blue-600 dark:text-blue-400 font-semibold">{t.turno}</td>
-                <td className="py-4">
+            {loading ? (
+              <tr><td colSpan={6} className="py-10 text-gray-400 italic">Cargando tickets...</td></tr>
+            ) : filteredTickets.map(t => (
+              <tr key={t._id} className="hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors">
+                <td className="py-4 font-bold text-blue-600 dark:text-blue-400">{t.turno}</td>
+                <td className="py-4 text-left">
                   <div className="font-medium text-gray-800 dark:text-gray-100">{t.paciente}</div>
-                  <div className="text-xs text-gray-400 dark:text-gray-500">Hora: {t.hora}</div>
+                  <div className="text-xs text-gray-400">{t.hora}</div>
                 </td>
-                <td className="py-4">
-                  <div className="flex flex-col gap-1 items-center">
-                    {t.items.map(item => (
-                        <span key={item.productId} className="inline-block px-3 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 text-xs rounded-full">
-                          {item.productName} ×{item.quantity}
-                        </span>
-                      ))}
+                
+                <td className="py-4 px-2">
+                  <div className="flex flex-wrap gap-1 justify-center">
+                    {t.items.map((item, idx) => (
+                      <span key={idx} className="group flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-[10px] rounded-full dark:text-white border border-transparent hover:border-red-200 transition-all">
+                        {item.productName} x{item.quantity}
+                        {canManage && (
+                          <button 
+                            onClick={() => prepareCancel(t._id, [{productId: String(item.productId), productName: item.productName}], false)}
+                            className="text-gray-400 hover:text-red-500 transition-colors ml-1"
+                            title="Eliminar este item"
+                          >
+                            <X size={10} strokeWidth={3} />
+                          </button>
+                        )}
+                      </span>
+                    ))}
                   </div>
                 </td>
+
                 <td className="py-4">
-                  <span className="inline-block px-3 py-1 bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 text-xs rounded-md">
+                  <span className="px-3 py-1 bg-amber-50 dark:bg-amber-900/20 text-amber-700 text-[11px] rounded font-medium border border-amber-100 dark:border-amber-900/30">
                     {t.disponibilidad}
                   </span>
                 </td>
                 <td className="py-4">
-                  <span className={`text-xs px-3 py-1 rounded-full ${statusBadge[t.status]}`}>
-                    {statusLabel[t.status]}
+                  <span className={`text-[10px] px-2 py-1 rounded-full font-bold ${statusBadge[t.fulfillmentStatus]}`}>
+                    {statusLabel[t.fulfillmentStatus] || t.fulfillmentStatus}
                   </span>
                 </td>
-
-                {/* ── Columna de acciones según rol ── */}
                 <td className="py-4">
                   {canManage ? (
-                    <div className="flex items-center justify-center gap-2 flex-wrap">
-                      {/* Llamar — siempre visible para admins/empleados */}
-                      <a
-                        href="tel:+573001234567"
-                        className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm flex items-center gap-1"
+                    <div className="flex justify-center gap-2">
+                      <a href={`tel:${t.customerId}`} className="p-1.5 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100" title="Llamar"><Phone size={14} /></a>
+                      
+                      {t.fulfillmentStatus === "completed" && (
+                        <button onClick={() => handleOpenDetails(t)} className="px-3 py-1 bg-gray-800 text-white rounded text-[11px] font-bold hover:bg-black transition-transform active:scale-95">DETALLES</button>
+                      )}
+                      
+                      {t.fulfillmentStatus !== "completed" && (
+                        <button onClick={() => handleOpenDetails(t)} className="px-3 py-1 bg-green-600 text-white rounded text-[11px] font-bold hover:bg-green-700 flex items-center gap-1"><CheckCircle size={12} /> REVISAR</button>
+                      )}
+
+                      <button 
+                        onClick={() => prepareCancel(t._id, t.items.map(i => ({productId: String(i.productId), productName: i.productName})), true)}
+                        className="p-1.5 bg-red-50 text-red-600 rounded-md hover:bg-red-100 transition-colors"
+                        title="Cancelar Ticket Completo"
                       >
-                        <Phone size={13} /> Llamar
-                      </a>
-
-                      {/* Atender — solo si está en registered */}
-                      {t.status === "registered" && (
-                        <button
-                          onClick={() => { setActiveTicket(t); setOpenModal(true) }}
-                          className="px-3 py-1 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 rounded-md text-sm flex items-center gap-1"
-                        >
-                          <CheckCircle size={13} /> Atender
-                        </button>
-                      )}
-
-                      {/* Completar — solo si está in-progress */}
-                      {t.status === "in-progress" && (
-                        <button
-                          onClick={() => handleCompletar(t)}
-                          className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-md text-sm flex items-center gap-1"
-                        >
-                          <CheckCircle size={13} /> Completar
-                        </button>
-                      )}
+                        <Trash2 size={14} />
+                      </button>
                     </div>
                   ) : (
-                    /* Usuario normal: solo puede ver su propio estado */
-                    <span className="text-xs text-gray-400 dark:text-gray-500 italic">
-                      Solo lectura
-                    </span>
+                    <span className="text-xs text-gray-400 italic">Vista limitada</span>
                   )}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
-
-        <div className="mt-4 text-sm text-gray-500 dark:text-gray-400">
-          Mostrando {filteredTickets.length} de {tickets.length} tickets registrados hoy
-        </div>
       </section>
 
-      {/* Bottom */}
-      <section className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 space-y-4">
-          <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-100">Alertas de Inventario Crítico</h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="flex gap-4 items-start bg-white/80 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl shadow-[0_0_10px_0px_rgba(0,0,0,0.15)]">
-              <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400">
-                <AlertTriangle size={20} />
-              </div>
-              <div className="flex-1">
-                <div className="font-semibold text-gray-800 dark:text-gray-100">Insulina NPH</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Quedan solo 5 unidades en stock.</div>
-                <div className="mt-3">
-                  <Link to="/inventory" className="text-sm text-blue-600 dark:text-blue-400 font-medium">VER INVENTARIO</Link>
-                </div>
-              </div>
-            </div>
-            <div className="flex gap-4 items-start bg-white/80 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl shadow-[0_0_10px_0px_rgba(0,0,0,0.15)]">
-              <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
-                <Truck size={20} />
-              </div>
-              <div className="flex-1">
-                <div className="font-semibold text-gray-800 dark:text-gray-100">Metformina 850mg</div>
-                <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">Pedido en camino (ETA: 14:00h).</div>
-                <div className="mt-3">
-                  <span className="text-sm text-blue-600 dark:text-blue-400 font-medium cursor-pointer">VER TRACKING</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <button
+      onClick={() => setOpenCreate(true)}
+      className="fixed bottom-8 right-8 p-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full shadow-2xl transition-transform hover:scale-110 active:scale-90 z-40 flex items-center justify-center"
+      title="Nuevo Ticket"
+      >
+        <Plus size={28} strokeWidth={3} />
+      </button>
 
-        <aside className="bg-gray-50/80 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 p-4 rounded-xl shadow-[0_0_10px_0px_rgba(0,0,0,0.15)]">
-          <h4 className="font-semibold text-gray-700 dark:text-gray-100">Próximos Turnos</h4>
-          <div className="mt-4 space-y-3">
-            {[
-              { tag: "URGENTE", tagColor: "bg-blue-50 dark:bg-blue-900/40 text-blue-600 dark:text-blue-400", name: "A-104 • Rosa Mendez", hora: "10:45" },
-              { tag: "REGULAR", tagColor: "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300", name: "B-205 • Pedro Pablo", hora: "10:52" },
-              { tag: "REGULAR", tagColor: "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300", name: "B-206 • Julia Sans", hora: "11:05" },
-            ].map(item => (
-              <div key={item.name} className="flex items-center justify-between bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
-                <div className="flex items-start gap-3">
-                  <div className={`text-xs px-2 py-1 rounded-full font-medium ${item.tagColor}`}>{item.tag}</div>
-                  <div className="font-semibold text-gray-800 dark:text-gray-100">{item.name}</div>
-                </div>
-                <div className="text-sm text-gray-400 dark:text-gray-500">{item.hora}</div>
-              </div>
-            ))}
-          </div>
-          <div className="mt-4">
-            <button
-              onClick={() => setOpenAgenda(true)}
-              className="w-full text-sm py-2 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-md text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            >
-              Ver Agenda Completa
-            </button>
-          </div>
-        </aside>
-      </section>
+      {/* --- MODALES --- */}
+      <ConfirmCancelModal 
+        open={openConfirm}
+        onClose={() => setOpenConfirm(false)}
+        onConfirm={handleExecuteCancel}
+        loading={cancelLoading}
+        title={confirmData?.isFull ? "Cancelar Ticket Completo" : "Eliminar Medicamento"}
+        message={confirmData?.isFull 
+          ? "¿Estás seguro de cancelar todo este ticket? El stock será liberado automáticamente." 
+          : "¿Deseas eliminar este medicamento del pedido?"}
+        itemsNames={confirmData?.names}
+      />
 
-      {/* Modals */}
-      <ModalAtender
-        open={openModal}
-        onClose={() => setOpenModal(false)}
-        ticket={activeTicket}
-        onConfirm={handleConfirmAtender}
-      />
-      <AgendaModal
-        open={openAgenda}
-        onClose={() => setOpenAgenda(false)}
-        tickets={tickets}
-      />
-      <CreateTicketModal
-        open={openCreate}
-        onClose={() => setOpenCreate(false)}
-      />
+      <ModalAtender open={openModal} onClose={() => setOpenModal(false)} ticket={activeTicket} onConfirm={handleConfirmAtender} />
+      <AgendaModal open={openAgenda} onClose={() => setOpenAgenda(false)} tickets={tickets} />
+      <CreateTicketModal open={openCreate} onClose={() => setOpenCreate(false)} />
     </main>
   )
 }

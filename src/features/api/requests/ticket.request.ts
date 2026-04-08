@@ -1,6 +1,8 @@
 import type { Ticket, TicketStatus, CreateTicketDto, PatchTicketDto } from '../types/tickets.type';
 import http from '../axios.instance';
 
+// api/requests/ticket.request.ts
+
 export async function getTickets(params: {
   page?: number;
   limit?: number;
@@ -11,9 +13,11 @@ export async function getTickets(params: {
     if (params.page)   query.append("page", params.page.toString());
     if (params.limit)  query.append("limit", params.limit.toString());
     if (params.status) query.append("status", params.status);
+
     const response = await http.get(`/tickets?${query.toString()}`);
-    return response.data as Ticket[];
+    return response.data;  
   } catch (error) {
+    console.error("Error en getTickets:", error);
     throw error;
   }
 }
