@@ -15,7 +15,7 @@ export interface AuthUserDto {
     documentType: string,
     documentNumber: string,
     email: string,
-    phone: string,
+    phone: number,
     role: string,
     profilePictureUrl: string | null,
     createdAt: string;

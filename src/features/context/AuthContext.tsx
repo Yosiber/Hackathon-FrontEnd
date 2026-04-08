@@ -15,6 +15,7 @@ interface AuthContextType {
   setLoading: (loading: boolean) => void,
   serverError: string | null,
   authUser: AuthUserDto | null,
+  setAuthUser: (user: AuthUserDto | null) => void,
   signIn: (data: LoginDto) => Promise<boolean>,
   logout: () => void
 }
@@ -97,6 +98,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setLoading,
         serverError,
         authUser,
+        setAuthUser,
         signIn,
         logout
       }}>

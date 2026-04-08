@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import {
   User, Mail, Pencil, X, Check, Camera,
   ShieldCheck, Bell, ClipboardList,
-  PackageCheck, AlertTriangle, ChevronRight,
+  PackageCheck, AlertTriangle, ChevronRight, Phone, CalendarDays
 } from "lucide-react";
 import { useSearch } from "../context/SearchContext";
 import { useUsers } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import PhotoUploadModal from "./PhotoUploadModal";
+import EmailOtpModal from "./EmailOtpModal";
 import { useAuth } from "../context/AuthContext";
 
 const actividadReciente = [
@@ -40,17 +41,20 @@ function ActivityIcon({ tipo }: { tipo: string }) {
 
 export default function Profile() {
   const { setPlaceholder } = useSearch();
-  const { updateUserImage } = useUsers();
-  const { authUser } = useAuth();
+  const { updateUserImage, updateUserProfile, requestNewEmailCode, serverError: apiError } = useUsers();
+  const { authUser, setAuthUser } = useAuth();
   const navigate = useNavigate();
 
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     name: authUser?.name,
     email: authUser?.email,
+    age: authUser?.age,
+    phone: authUser?.phone,
     imageProfile: authUser?.profilePictureUrl,
   });
   const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
+  const [isOtpModalOpen, setIsOtpModalOpen] = useState(false);
 
   useEffect(() => {
     setPlaceholder("Buscar...");
@@ -62,7 +66,13 @@ export default function Profile() {
 
   const handleCancel = () => {
     setIsEditing(false);
-    setFormData({ name: authUser?.name || '', email: authUser?.email || '', imageProfile: authUser?.profilePictureUrl });
+    setFormData({ 
+      name: authUser?.name || '', 
+      email: authUser?.email || '', 
+      age: authUser?.age, 
+      phone: authUser?.phone, 
+      imageProfile: authUser?.profilePictureUrl 
+    });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,14 +87,62 @@ export default function Profile() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.imageProfile && authUser?._id) {
-      try {
-        await updateUserImage(authUser._id, formData.imageProfile);
-        setIsEditing(false);
-      } catch (error) {
-        console.error('Error al actualizar la imagen:', error);
+    if (!authUser?._id) return;
+
+    let changesMade = false;
+
+    // 1. Manejar Fotografía
+    if (formData.imageProfile && formData.imageProfile !== authUser.profilePictureUrl && !formData.imageProfile.startsWith('http')) {
+      const ok = await updateUserImage(authUser._id, formData.imageProfile);
+      if (ok) changesMade = true;
+    }
+
+    // 2. Información General
+    if (
+      formData.name !== authUser.name ||
+      String(formData.age) !== String(authUser.age) ||
+      String(formData.phone) !== String(authUser.phone)
+    ) {
+      const okProfile = await updateUserProfile(authUser._id, {
+        name: formData.name,
+        age: Number(formData.age),
+        phone: Number(formData.phone),
+      });
+
+      if (okProfile) {
+        setAuthUser({
+          ...authUser,
+          name: formData.name!,
+          age: Number(formData.age),
+          phone: Number(formData.phone),
+        });
+        changesMade = true;
       }
     }
+
+    // 3. Manejar Cambio de Correo Electrónico (Proceso asíncrono secundario)
+    if (formData.email !== authUser.email) {
+      const codeSent = await requestNewEmailCode(authUser._id, { newEmail: formData.email! });
+      if (codeSent) {
+        setIsOtpModalOpen(true);
+      }
+      return; // Pausamos para requerir OTP, evitamos cerrar modo edición por ahora.
+    }
+
+    if (changesMade) {
+      setIsEditing(false);
+    } else {
+      setIsEditing(false);
+    }
+  };
+
+  const handleEmailSuccess = () => {
+    setIsOtpModalOpen(false);
+    setIsEditing(false);
+    setAuthUser({
+      ...authUser!,
+      email: formData.email!,
+    });
   };
 
   const avatarSrc = formData.imageProfile
@@ -175,6 +233,8 @@ export default function Profile() {
               {[
                 { label: "Nombre completo", value: formData.name,  icon: <User size={15} />  },
                 { label: "Correo electrónico", value: formData.email, icon: <Mail size={15} /> },
+                { label: "Teléfono", value: formData.phone, icon: <Phone size={15} /> },
+                { label: "Edad", value: formData.age ? `${formData.age} años` : '', icon: <CalendarDays size={15} /> },
                 { label: "Rol en el sistema", value: authUser?.role || '-',    icon: <ShieldCheck size={15} /> },
               ].map((row) => (
                 <div key={row.label}
@@ -192,6 +252,8 @@ export default function Profile() {
               {[
                 { label: "Nombre completo",    name: "name",  type: "text"  },
                 { label: "Correo electrónico", name: "email", type: "email" },
+                { label: "Teléfono",           name: "phone", type: "tel"   },
+                { label: "Edad",               name: "age",   type: "number"},
               ].map((field) => (
                 <div key={field.name}>
                   <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5">{field.label}</label>
@@ -220,6 +282,13 @@ export default function Profile() {
                   "* El rol, sede y turno son asignados por el administrador del sistema."
                 )}
               </p>
+
+              {apiError && (
+                <div className="flex items-start gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/40 text-red-600 dark:text-red-400 rounded-lg text-sm font-medium">
+                  <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+                  <p>{apiError}</p>
+                </div>
+              )}
 
               <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={handleCancel}
@@ -281,6 +350,16 @@ export default function Profile() {
         onClose={() => setIsPhotoModalOpen(false)}
         onImageSelect={handleImageSelect}
       />
+      
+      {authUser?._id && formData.email && (
+        <EmailOtpModal 
+          isOpen={isOtpModalOpen}
+          onClose={() => setIsOtpModalOpen(false)}
+          userId={authUser._id}
+          newEmail={formData.email}
+          onSuccess={handleEmailSuccess}
+        />
+      )}
     </main>
   );
 }
