@@ -18,24 +18,27 @@ export default function Sidebar() {
       {/* Top */}
       <div>
         {/* Logo */}
-        <div className="mt-5 ml-3 mb-10 px-2 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl primary-gradient flex items-center justify-center text-white shadow-lg">
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>medical_services</span>
+        <Link to='/'>
+          <div className="mt-5 mx-3 mb-10 p-2 flex items-center gap-3 rounded-xl hover:bg-slate-100 dark:hover:bg-gray-700 transition-all duration-300 hover:scale-105 hover:shadow-sm cursor-pointer">
+            <div className="w-10 h-10 rounded-xl primary-gradient flex items-center justify-center text-white shadow-lg">
+              <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>medical_services</span>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-blue-800 tracking-tight dark:text-blue-400">Coraje</h1>
+              <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest dark:text-gray-300">Centro de Servicio</h2>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-blue-800 tracking-tight dark:text-blue-400">Coraje</h1>
-            <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest dark:text-gray-300">Centro de Servicio</h2>
-          </div>
-        </div>
+        </Link>
+
 
 
 
         {/* Menu */}
         <nav className="mt-4 flex flex-col gap-1">
-          <SidebarItem icon="dashboard" label="Dashboard" to="/dashboard" active={location.pathname === "/"} />
-          <SidebarItem icon="inventory_2" label="Inventario" to="/inventory" active={location.pathname === "/inventory"} />
-          <SidebarItem icon="confirmation_number" label="Tickets" to="/tickets" active={location.pathname === "/tickets"} />
-          <SidebarItem icon="notifications" label="Notificaciones" to="/notifications" active={location.pathname === "/notifications"} />
+          <SidebarItem icon="dashboard" label="Dashboard" to="/dashboard" active={location.pathname.includes("/dashboard") || location.pathname === "/"} />
+          <SidebarItem icon="inventory_2" label="Inventario" to="/inventory" active={location.pathname.includes("/inventory")} />
+          <SidebarItem icon="confirmation_number" label="Tickets" to="/tickets" active={location.pathname.includes("/tickets")} />
+          <SidebarItem icon="notifications" label="Notificaciones" to="/notifications" active={location.pathname.includes("/notifications")} />
         </nav>
 
       </div>

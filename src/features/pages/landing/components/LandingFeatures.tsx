@@ -2,7 +2,7 @@ import { HandPlatter, ClipboardList, TrendingUp } from "lucide-react";
 
 export default function LandingFeatures() {
   return (
-    <section className="pb-32 pt-24 bg-blue-900 relative overflow-hidden">
+    <section className="pb-32 pt-24 bg-blue-900 dark:bg-gray-800 relative overflow-hidden">
       {/* Decorative background shapes for the dark section */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500 rounded-full blur-[120px] opacity-20 transform translate-x-1/2 -translate-y-1/4"></div>
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-cyan-400 rounded-full blur-[120px] opacity-20 transform -translate-x-1/3 translate-y-1/3"></div>
@@ -52,11 +52,11 @@ export default function LandingFeatures() {
           preserveAspectRatio="none"
           shapeRendering="auto"
         >
-          <g className="animate-wave-parallax">
-            <use href="#gentle-wave" x="48" y="0" fill="rgba(255, 255, 255, 0.7)" />
-            <use href="#gentle-wave" x="48" y="3" fill="rgba(255, 255, 255, 0.5)" />
-            <use href="#gentle-wave" x="48" y="5" fill="rgba(255, 255, 255, 0.3)" />
-            <use href="#gentle-wave" x="48" y="7" fill="#ffffff" />
+          <g className="animate-wave-parallax text-white dark:text-gray-800">
+            <use href="#gentle-wave" x="48" y="0" fill="currentColor" fillOpacity="0.7" />
+            <use href="#gentle-wave" x="48" y="3" fill="currentColor" fillOpacity="0.5" />
+            <use href="#gentle-wave" x="48" y="5" fill="currentColor" fillOpacity="0.3" />
+            <use href="#gentle-wave" x="48" y="7" fill="currentColor" />
           </g>
         </svg>
       </div>

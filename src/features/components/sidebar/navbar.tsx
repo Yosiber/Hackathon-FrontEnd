@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSearch } from "../../context/SearchContext";
 import { useNotifications } from "../../context/NotificationsContext";
 import { useAuth } from "../../context/AuthContext";
@@ -50,11 +50,11 @@ export default function Navbar() {
           {/* Botón de notificaciones */}
           <button
             onClick={() => navigate("/notifications")}
-            className="relative p-1.5 flex items-center"
+            className="relative p-1.5 flex items-center group"
             aria-label={`Notificaciones${noLeidas > 0 ? `, ${noLeidas} sin leer` : ""}`}
           >
             <span
-              className="material-symbols-outlined text-gray-600 dark:text-gray-100/80 text-on-surface-variant hover:cursor-pointer"
+              className="material-symbols-outlined text-gray-600 dark:text-gray-100/80 text-on-surface-variant hover:cursor-pointer group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               notifications
@@ -78,22 +78,25 @@ export default function Navbar() {
             </button>
           </FAQModal>
         </div>
+        
+        <Link to='/profile'>
+          <div>
+            <button className="p-1.5 flex items-center group">
+              <span
+                className="material-symbols-outlined text-gray-600 dark:text-gray-100/80 text-on-surface-variant hover:cursor-pointer group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
+                style={{ fontVariationSettings: "'FILL' 1" }}
+              >
+                settings
+              </span>
+            </button>
+          </div>        
+        </Link>
+
 
         <div>
-          <button className="p-1.5 flex items-center">
+          <button onClick={() => logoutAction()} className="p-1.5 flex items-center group">
             <span
-              className="material-symbols-outlined text-gray-600 dark:text-gray-100/80 text-on-surface-variant hover:cursor-pointer"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              settings
-            </span>
-          </button>
-        </div>
-
-        <div>
-          <button onClick={() => logoutAction()} className="p-1.5 flex items-center">
-            <span
-              className="material-symbols-outlined text-gray-600 dark:text-gray-100/80 text-on-surface-variant hover:cursor-pointer"
+              className="material-symbols-outlined text-gray-600 dark:text-gray-100/80 text-on-surface-variant hover:cursor-pointer group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors"
               style={{ fontVariationSettings: "'FILL' 1" }}
             >
               logout

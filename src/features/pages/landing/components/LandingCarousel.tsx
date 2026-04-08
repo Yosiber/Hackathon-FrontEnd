@@ -46,18 +46,18 @@ export default function LandingCarousel() {
   }, [currentIndex]);
 
   return (
-    <section className="py-24 bg-gradient-to-b from-white to-blue-50 relative overflow-hidden border-b border-gray-100">
+    <section className="py-24 bg-gradient-to-b from-white to-blue-50 dark:from-gray-800 dark:to-gray-900 relative overflow-hidden border-b border-gray-100 dark:border-gray-800">
       {/* Decorative blobs */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-200 rounded-full blur-[100px] opacity-30 -translate-y-1/2 translate-x-1/2"></div>
-      <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-200 rounded-full blur-[100px] opacity-30 translate-y-1/2 -translate-x-1/2"></div>
+      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-200 dark:bg-blue-900/30 rounded-full blur-[100px] opacity-30 -translate-y-1/2 translate-x-1/2"></div>
+      <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-200 dark:bg-emerald-900/30 rounded-full blur-[100px] opacity-30 translate-y-1/2 -translate-x-1/2"></div>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
         <div className="mb-14">
-          <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 tracking-tight">Médicos que confían en Coraje</h2>
-          <p className="mt-4 text-xl text-gray-600 font-medium">Descubre cómo nuestra plataforma eleva la eficiencia clínica a diario.</p>
+          <h2 className="text-3xl md:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight">Médicos que confían en Coraje</h2>
+          <p className="mt-4 text-xl text-gray-600 dark:text-gray-300 font-medium">Descubre cómo nuestra plataforma eleva la eficiencia clínica a diario.</p>
         </div>
 
-        <div className="relative bg-white border border-gray-100/50 rounded-[3rem] p-8 md:p-16 shadow-2xl shadow-blue-900/10 mx-auto backdrop-blur-sm">
+        <div className="relative bg-white dark:bg-gray-800 border border-gray-100/50 dark:border-gray-700 rounded-[3rem] p-8 md:p-16 shadow-2xl shadow-blue-900/10 dark:shadow-black/40 mx-auto backdrop-blur-sm">
           <Quote className="mx-auto text-blue-200 mb-8 transform -scale-x-100" size={80} style={{ fill: 'currentColor' }} />
           
           <div className="relative h-96 md:h-72 overflow-hidden flex items-center justify-center">
@@ -69,16 +69,16 @@ export default function LandingCarousel() {
                   index < currentIndex ? "opacity-0 -translate-x-12" : "opacity-0 translate-x-12"
                 }`}
               >
-                <p className="text-xl md:text-2xl font-medium text-gray-800 italic leading-relaxed max-w-3xl mx-auto">
+                <p className="text-xl md:text-2xl font-medium text-gray-800 dark:text-gray-200 italic leading-relaxed max-w-3xl mx-auto">
                   "{testimonial.content}"
                 </p>
                 <div className="mt-8 flex items-center justify-center gap-5">
-                  <div className={`w-14 h-14 rounded-full ${testimonial.avatarColor} flex items-center justify-center font-bold text-xl shadow-md border-2 border-white`}>
+                  <div className={`w-14 h-14 rounded-full ${testimonial.avatarColor} flex items-center justify-center font-bold text-xl shadow-md border-2 border-white dark:border-gray-800`}>
                     {testimonial.author.charAt(0)}{testimonial.author.split(' ')[1]?.charAt(0)}
                   </div>
                   <div className="text-left">
-                    <p className="font-extrabold text-gray-900 text-lg">{testimonial.author}</p>
-                    <p className="text-sm font-bold text-blue-700 tracking-wider uppercase mt-0.5">{testimonial.role}</p>
+                    <p className="font-extrabold text-gray-900 dark:text-white text-lg">{testimonial.author}</p>
+                    <p className="text-sm font-bold text-blue-700 dark:text-blue-400 tracking-wider uppercase mt-0.5">{testimonial.role}</p>
                   </div>
                 </div>
               </div>
@@ -88,7 +88,7 @@ export default function LandingCarousel() {
           <div className="mt-14 flex justify-center items-center gap-6">
             <button 
               onClick={prevSlide}
-              className="w-14 h-14 rounded-full bg-white border-2 border-gray-100 flex items-center justify-center text-gray-500 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50 shadow-md transition-all focus:outline-none focus:ring-4 focus:ring-blue-100"
+              className="w-14 h-14 rounded-full bg-white dark:bg-gray-700 border-2 border-gray-100 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-300 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-gray-600 shadow-md transition-all focus:outline-none focus:ring-4 focus:ring-blue-100 dark:focus:ring-gray-600"
             >
               <ChevronLeft size={28} />
             </button>
@@ -106,7 +106,7 @@ export default function LandingCarousel() {
             </div>
             <button 
               onClick={nextSlide}
-              className="w-14 h-14 rounded-full bg-white border-2 border-gray-100 flex items-center justify-center text-gray-500 hover:text-blue-600 hover:border-blue-300 hover:bg-blue-50 shadow-md transition-all focus:outline-none focus:ring-4 focus:ring-blue-100"
+              className="w-14 h-14 rounded-full bg-white dark:bg-gray-700 border-2 border-gray-100 dark:border-gray-600 flex items-center justify-center text-gray-500 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-300 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-gray-600 shadow-md transition-all focus:outline-none focus:ring-4 focus:ring-blue-100 dark:focus:ring-gray-600"
             >
               <ChevronRight size={28} />
             </button>
