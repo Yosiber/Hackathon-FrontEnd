@@ -62,11 +62,17 @@ export default function Tickets() {
   const loadTickets = async () => {
     try {
       setLoading(true)
-      const response = await getTickets({ 
-        limit: 50
-      })
+
+      // Si no tiene permisos de manejo (usuario natural), le enviamos su customerId al endpoint general
+      const payload: any = { limit: 50 };
+      if (!canManage && authUser?._id) {
+        payload.customerId = authUser._id;
+      }
+
+      const response = await getTickets(payload)
+      const itemsToMap = response.items || []
       
-      const mapped = response.items.map(mapTicketToView)
+      const mapped = itemsToMap.map(mapTicketToView)
       setTickets(mapped)
       
     

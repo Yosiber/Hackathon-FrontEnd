@@ -7,12 +7,14 @@ export async function getTickets(params: {
   page?: number;
   limit?: number;
   status?: TicketStatus;
+  customerId?: string;
 }) {
   try {
     const query = new URLSearchParams();
     if (params.page)   query.append("page", params.page.toString());
     if (params.limit)  query.append("limit", params.limit.toString());
     if (params.status) query.append("status", params.status);
+    if (params.customerId) query.append("customerId", params.customerId);
 
     const response = await http.get(`/tickets?${query.toString()}`);
     return response.data;  
@@ -31,20 +33,7 @@ export async function getTicketById(id: string) {
   }
 }
 
-export async function getTicketsByCustomer(customerId: string, params?: {
-  page?: number;
-  limit?: number;
-}) {
-  try {
-    const query = new URLSearchParams();
-    if (params?.page)  query.append("page", params.page.toString());
-    if (params?.limit) query.append("limit", params.limit.toString());
-    const response = await http.get(`/tickets/customer/${customerId}?${query.toString()}`);
-    return response.data as Ticket[];
-  } catch (error) {
-    throw error;
-  }
-}
+// getTicketsByCustomer eliminada porque ahora se une con getTickets
 
 export async function createTicket(body: CreateTicketDto) {
   try {
