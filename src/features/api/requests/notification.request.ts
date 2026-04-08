@@ -33,7 +33,7 @@ export const getNotificationsByType = async (
 ) => {
   try {
     const response = await axiosInstance.get(
-      `/notifications/${userId}?type=${type}`
+      `/notifications/type=${type}`
     );
     return response.data as Notification[];
   } catch (error) {
@@ -41,13 +41,11 @@ export const getNotificationsByType = async (
   }
 };
 
-export const markNotificationAsRead = async (notificationId: string) => {
-  try {
-    const response = await axiosInstance.patch(`/notifications/${notificationId}/mark-read`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
+export const markNotificationAsRead = async (userId: string, notificationIds: string[]) => {
+  const response = await axiosInstance.patch(`/notifications/${userId}/mark-read`, {
+    notificationIds,
+  });
+  return response.data;
 };
 
 export const markAllNotificationsAsRead = async (userId: string) => {
@@ -70,6 +68,7 @@ export const deleteNotification = async (notificationId: string) => {
 
 export const createNotification = async (
   userId: string,
+  recipientName: string,  // ← parámetro nuevo
   title: string,
   message: string,
   type: NotificationType,
@@ -79,6 +78,7 @@ export const createNotification = async (
   try {
     const response = await axiosInstance.post(`/notifications`, {
       userId,
+      recipientName,  // ← ahora sí se envía al backend
       title,
       message,
       type,

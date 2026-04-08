@@ -4,8 +4,8 @@ import {
   Clock, CheckCheck, Trash2, Plus, X, Check, InboxIcon,
 } from "lucide-react";
 import { useSearch } from "../../context/SearchContext";
-import { useNotifications, type TipoNotificacion, type Notificacion } from "../../context/NotificationsContext";
 import { useAuth } from "../../context/AuthContext";
+import { useNotifications, type TipoNotificacion, type Notificacion } from "../../context/NotificationsContext";
 
 export type FiltroNotificacion = "todas" | TipoNotificacion | "no_leidas";
 
@@ -45,19 +45,31 @@ const FILTROS: { key: FiltroNotificacion; label: string }[] = [
 ];
 
 function ModalCrear({ open, onClose, onCreate }: {
-  open: boolean; onClose: () => void;
-  onCreate: (n: Omit<Notificacion, "id" | "tiempo" | "leida">) => void;
+  open: boolean;
+  onClose: () => void;
+  onCreate: (n: { tipo: TipoNotificacion; destinatario: string; targetUserId: string; mensaje: string; metadata: { medicineId?: string; ticketId?: string } }) => void;
 }) {
   const [tipo, setTipo] = useState<TipoNotificacion>("stock");
   const [destinatario, setDestinatario] = useState("");
+  const [targetUserId, setTargetUserId] = useState("");
   const [mensaje, setMensaje] = useState("");
+  const [medicineId, setMedicineId] = useState("");
+  const [ticketId, setTicketId] = useState("");
 
   if (!open) return null;
 
+  const needsMedicine = tipo === "stock" || tipo === "llegada";
+  const needsTicket   = tipo === "ticket" || tipo === "turno";
+  const metadataValid = needsMedicine ? !!medicineId.trim() : !!ticketId.trim();
+
   const handleSubmit = () => {
-    if (!destinatario.trim() || !mensaje.trim()) return;
-    onCreate({ tipo, destinatario, mensaje });
-    setDestinatario(""); setMensaje(""); setTipo("stock");
+    if (!destinatario.trim() || !targetUserId.trim() || !mensaje.trim() || !metadataValid) return;
+    const metadata = needsMedicine
+      ? { medicineId: medicineId.trim() }
+      : { ticketId: ticketId.trim() };
+    onCreate({ tipo, destinatario, targetUserId: targetUserId.trim(), mensaje, metadata });
+    setDestinatario(""); setTargetUserId(""); setMensaje(""); setTipo("stock");
+    setMedicineId(""); setTicketId("");
     onClose();
   };
 
@@ -81,9 +93,15 @@ function ModalCrear({ open, onClose, onCreate }: {
             </select>
           </div>
           <div>
-            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5">Destinatario</label>
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5">Destinatario (Nombre o Detalle)</label>
             <input type="text" value={destinatario} onChange={(e) => setDestinatario(e.target.value)}
               placeholder="Ej: Carlos Gómez — Turno A-101"
+              className="w-full px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm text-gray-800 dark:text-gray-100 placeholder:text-gray-400" />
+          </div>
+          <div>
+            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5">ID del Usuario (Obligatorio para el envío)</label>
+            <input type="text" value={targetUserId} onChange={(e) => setTargetUserId(e.target.value)}
+              placeholder="Ej: 664f1a2b3c4d5e6f7a8b9c0d"
               className="w-full px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm text-gray-800 dark:text-gray-100 placeholder:text-gray-400" />
           </div>
           <div>
@@ -92,10 +110,29 @@ function ModalCrear({ open, onClose, onCreate }: {
               placeholder="Describe el detalle de la notificación..." rows={3}
               className="w-full px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm text-gray-800 dark:text-gray-100 placeholder:text-gray-400 resize-none" />
           </div>
+
+          {/* Campo dinámico según tipo */}
+          {needsMedicine && (
+            <div>
+              <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5">ID del medicamento</label>
+              <input type="text" value={medicineId} onChange={(e) => setMedicineId(e.target.value)}
+                placeholder="Ej: 664f1a2b3c4d5e6f7a8b9c0d"
+                className="w-full px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm text-gray-800 dark:text-gray-100 placeholder:text-gray-400" />
+            </div>
+          )}
+          {needsTicket && (
+            <div>
+              <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1.5">ID del ticket</label>
+              <input type="text" value={ticketId} onChange={(e) => setTicketId(e.target.value)}
+                placeholder="Ej: 664f1a2b3c4d5e6f7a8b9c0d"
+                className="w-full px-3 py-2 rounded-md border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-sm text-gray-800 dark:text-gray-100 placeholder:text-gray-400" />
+            </div>
+          )}
         </div>
+
         <div className="flex justify-end gap-3 mt-5">
           <button onClick={onClose} className="px-4 py-2 rounded-md text-sm border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">Cancelar</button>
-          <button onClick={handleSubmit} disabled={!destinatario.trim() || !mensaje.trim()}
+          <button onClick={handleSubmit} disabled={!destinatario.trim() || !targetUserId.trim() || !mensaje.trim() || !metadataValid}
             className="px-4 py-2 rounded-md text-sm bg-blue-600 hover:bg-blue-700 text-white font-medium disabled:opacity-40 disabled:cursor-not-allowed">
             Crear notificación
           </button>
@@ -106,7 +143,9 @@ function ModalCrear({ open, onClose, onCreate }: {
 }
 
 function NotifCard({ notif, onMarkRead, onDelete }: {
-  notif: Notificacion; onMarkRead: (id: number) => void; onDelete: (id: number) => void;
+  notif: Notificacion;
+  onMarkRead: (_id: string) => void; 
+  onDelete: (_id: string) => void;    
 }) {
   const cfg = TIPO_CONFIG[notif.tipo];
   return (
@@ -139,6 +178,7 @@ function NotifCard({ notif, onMarkRead, onDelete }: {
 }
 
 export default function Notifications() {
+  const { authUser } = useAuth();
   const { search, setPlaceholder } = useSearch();
   const { notificaciones, noLeidas, markRead, markAllRead, deleteNotif, addNotif } = useNotifications();
   const [filtro, setFiltro] = useState<FiltroNotificacion>("todas");
@@ -173,10 +213,12 @@ export default function Notifications() {
               <CheckCheck size={15} /> Marcar todas como leídas
             </button>
           )}
-          <button onClick={() => setOpenModal(true)}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm text-sm font-medium">
-            <Plus size={15} /> Nueva notificación
-          </button>
+          {authUser?.role === "administrador" && (
+            <button onClick={() => setOpenModal(true)}
+              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm text-sm font-medium">
+              <Plus size={15} /> Nueva notificación
+            </button>
+          )}
         </div>
       </div>
 
@@ -222,7 +264,11 @@ export default function Notifications() {
         )}
       </section>
 
-      <ModalCrear open={openModal} onClose={() => setOpenModal(false)} onCreate={addNotif} />
+      <ModalCrear 
+          open={openModal} 
+          onClose={() => setOpenModal(false)} 
+          onCreate={addNotif}  // addNotif ya acepta ese shape exacto
+        />
     </main>
   );
 }
