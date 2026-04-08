@@ -38,7 +38,7 @@ Este proyecto ha sido desarrollado como una SPA (Single Page Application) priori
 
 ---
 
-## ¡Como usar?
+## ¿Como usar?
 - Como usuario te registras como lo harias en cualquier pagina web norma.
 - En caso de querer usar el administrador registrarse como
   
