@@ -185,7 +185,7 @@ export default function Tickets() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
         {stats.map(s => (
-          <div key={s.label} className={`bg-white dark:bg-gray-800 p-4 rounded-md shadow-sm border-l-4 ${s.color}`}>
+          <div key={s.label} className={`bg-white/80 dark:bg-gray-800 p-4 rounded-xl shadow-[0_0_10px_0px_rgba(0,0,0,0.15)] border-l-4 ${s.color}`}>
             <p className="text-xs text-gray-500 dark:text-gray-400">{s.label}</p>
             <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{s.value}</p>
           </div>
@@ -193,7 +193,7 @@ export default function Tickets() {
       </div>
 
       {/* Table */}
-      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+      <section className="bg-white/80 dark:bg-gray-800 rounded-xl shadow-[0_0_10px_0px_rgba(0,0,0,0.15)] p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-100">
             Cola de Atención Activa
@@ -294,7 +294,7 @@ export default function Tickets() {
         <div className="md:col-span-2 space-y-4">
           <h4 className="text-lg font-semibold text-gray-700 dark:text-gray-100">Alertas de Inventario Crítico</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="flex gap-4 items-start bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl shadow-sm">
+            <div className="flex gap-4 items-start bg-white/80 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl shadow-[0_0_10px_0px_rgba(0,0,0,0.15)]">
               <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-400">
                 <AlertTriangle size={20} />
               </div>
@@ -306,7 +306,7 @@ export default function Tickets() {
                 </div>
               </div>
             </div>
-            <div className="flex gap-4 items-start bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl shadow-sm">
+            <div className="flex gap-4 items-start bg-white/80 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 p-4 rounded-xl shadow-[0_0_10px_0px_rgba(0,0,0,0.15)]">
               <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
                 <Truck size={20} />
               </div>
@@ -321,7 +321,7 @@ export default function Tickets() {
           </div>
         </div>
 
-        <aside className="bg-gray-50 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 p-4 rounded-xl shadow-sm">
+        <aside className="bg-gray-50/80 dark:bg-gray-900 border border-gray-100 dark:border-gray-700 p-4 rounded-xl shadow-[0_0_10px_0px_rgba(0,0,0,0.15)]">
           <h4 className="font-semibold text-gray-700 dark:text-gray-100">Próximos Turnos</h4>
           <div className="mt-4 space-y-3">
             {[

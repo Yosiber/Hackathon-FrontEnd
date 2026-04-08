@@ -54,7 +54,7 @@ export default function Dashboard() {
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 mb-12">
             <div className="md:col-span-12 lg:col-span-6 bg-white/80 dark:bg-gray-800 dark:text-gray-100 rounded-[2rem]
-            p-8 shadow-[0_0_10px_0px_rgba(0,0,0,0.2)] relative overflow-hidden group text-center md:text-left">
+            p-8 shadow-[0_0_10px_0px_rgba(0,0,0,0.15)] relative overflow-hidden group text-center md:text-left">
                 <span className="material-symbols-outlined border-gray-400 absolute -right-10 -bottom-10 m-auto !text-[300px] opacity-10 dark:opacity-20 pointer-events-none select-none text-blue-800 dark:text-gray-100" style={{ fontVariationSettings: "'FILL' 1" }}>
                     monitoring
                 </span>
@@ -93,7 +93,7 @@ export default function Dashboard() {
                 </div>
             </div>
 
-            <div className="md:col-span-12 lg:col-span-5 bg-linear-to-r from-[#0d47a1] to-[#1976D2] rounded-[2rem] p-8 shadow-[0_0_10px_0px_rgba(0,0,0,0.2)]
+            <div className="md:col-span-12 lg:col-span-5 bg-linear-to-r from-[#0d47a1] to-[#1976D2] rounded-[2rem] p-8 shadow-[0_0_10px_0px_rgba(0,0,0,0.15)]
             text-on-primary flex flex-col justify-between dark:bg-gray-800 dark:text-gray-100">
                 {(closeProductIndex !== null) ? (
                     <>
@@ -148,7 +148,7 @@ export default function Dashboard() {
                             : null;
 
                         return (
-                            <div key={index} className={`rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 hover:shadow-lg transition-all duration-300 group border-l-4 shadow-sm bg-white/80 dark:bg-gray-800
+                            <div key={index} className={`rounded-3xl p-6 flex flex-col md:flex-row items-center justify-between gap-6 hover:shadow-lg transition-all duration-300 group border-l-4 shadow-[0_0_10px_0px_rgba(0,0,0,0.15)] bg-white/80 dark:bg-gray-800
                                 ${product.status === "active" ? "border-green-600" : (hasShipmentDate ? "border-orange-400/80" : "border-gray-500")}`}>
                                 <div className="flex items-center gap-6 flex-1">
                                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-secondary

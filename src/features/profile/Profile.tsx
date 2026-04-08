@@ -171,7 +171,7 @@ export default function Profile() {
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4 mb-6">
         {stats.map((s) => (
-          <div key={s.label} className={`bg-white dark:bg-gray-800 p-4 rounded-md shadow-sm border-l-4 ${s.color}`}>
+          <div key={s.label} className={`bg-white/80 dark:bg-gray-800 p-4 rounded-xl shadow-[0_0_10px_0px_rgba(0,0,0,0.15)] border-l-4 ${s.color}`}>
             <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">{s.label}</p>
             <p className="text-2xl font-bold text-gray-800 dark:text-gray-100 mt-0.5">{s.value}</p>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{s.sub}</p>
@@ -183,7 +183,7 @@ export default function Profile() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
 
         {/* Avatar + info */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-6 flex flex-col items-center gap-4">
+        <div className="bg-white/80 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-[0_0_10px_0px_rgba(0,0,0,0.15)] p-6 flex flex-col items-center gap-4">
           <div className="relative">
             <img src={avatarSrc} alt="Avatar"
               className="w-28 h-28 rounded-full object-cover border-4 border-white dark:border-gray-700 shadow" />
@@ -218,7 +218,7 @@ export default function Profile() {
         </div>
 
         {/* Info / Form */}
-        <div className="md:col-span-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
+        <div className="md:col-span-2 bg-white/80 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-[0_0_10px_0px_rgba(0,0,0,0.15)] p-6">
           <div className="flex items-center justify-between mb-5">
             <h3 className="font-semibold text-gray-800 dark:text-gray-100 text-lg">Información personal</h3>
             {isEditing && (
@@ -309,7 +309,7 @@ export default function Profile() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
         {/* Actividad reciente */}
-        <div className="md:col-span-2 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
+        <div className="md:col-span-2 bg-white/80 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-[0_0_10px_0px_rgba(0,0,0,0.15)] p-6">
           <h3 className="font-semibold text-gray-800 dark:text-gray-100 text-lg mb-4">Actividad reciente</h3>
           <div className="flex flex-col gap-3">
             {actividadReciente.map((a, i) => (
@@ -327,7 +327,7 @@ export default function Profile() {
         </div>
 
         {/* Accesos rápidos */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm p-6">
+        <div className="bg-white/80 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 shadow-[0_0_10px_0px_rgba(0,0,0,0.15)] p-6">
           <h3 className="font-semibold text-gray-800 dark:text-gray-100 text-lg mb-4">Accesos rápidos</h3>
           <div className="flex flex-col gap-3">
             {accesosRapidos.map((a) => (

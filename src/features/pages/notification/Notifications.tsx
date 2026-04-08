@@ -149,7 +149,7 @@ function NotifCard({ notif, onMarkRead, onDelete }: {
 }) {
   const cfg = TIPO_CONFIG[notif.tipo];
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-4 flex items-start gap-4 transition-opacity
+    <div className={`bg-white/80 dark:bg-gray-800 shadow-[0_0_10px_0px_rgba(0,0,0,0.15)] rounded-xl border border-gray-100 dark:border-gray-700 p-4 flex items-start gap-4 transition-opacity
       ${notif.leida ? "opacity-60" : `border-l-4 ${cfg.borderClass}`}`}>
       <div className={`p-2.5 rounded-lg flex-shrink-0 ${cfg.iconBg} ${cfg.iconColor}`}>{cfg.icon}</div>
       <div className="flex-1 min-w-0">
@@ -202,9 +202,19 @@ export default function Notifications() {
   return (
     <main className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
       <div className="flex items-center justify-between gap-4 mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Centro de notificaciones</h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400">Alertas para pacientes, cuidadores y personal de farmacia</p>
+        <div className="flex items-center gap-4">
+          <div className="p-2 rounded-md bg-white dark:bg-gray-800 shadow-sm">
+            <span
+              className="material-symbols-outlined text-gray-600 dark:text-gray-200"
+              style={{ fontSize: "20px", fontVariationSettings: "'FILL' 1" }}
+            >
+              notifications_active
+            </span>
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Centro de notificaciones</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Alertas para pacientes, cuidadores y personal de farmacia</p>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           {noLeidas > 0 && (
@@ -224,7 +234,7 @@ export default function Notifications() {
 
       <div className="grid grid-cols-4 gap-4 mb-6">
         {stats.map((s) => (
-          <div key={s.label} className={`bg-white dark:bg-gray-800 p-4 rounded-md shadow-sm border-l-4 ${s.color}`}>
+          <div key={s.label} className={`bg-white/80 dark:bg-gray-800 p-4 rounded-xl shadow-[0_0_10px_0px_rgba(0,0,0,0.15)] border-l-4 ${s.color}`}>
             <p className="text-xs text-gray-500 dark:text-gray-400">{s.label}</p>
             <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{s.value}</p>
           </div>
@@ -245,7 +255,7 @@ export default function Notifications() {
         ))}
       </div>
 
-      <section className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+      <section className="bg-white/80 dark:bg-gray-800 rounded-xl shadow-[0_0_10px_0px_rgba(0,0,0,0.15)] p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-lg text-gray-800 dark:text-gray-100">Notificaciones</h3>
           <span className="text-sm text-gray-400 dark:text-gray-500">{filtradas.length} resultado{filtradas.length !== 1 ? "s" : ""}</span>
