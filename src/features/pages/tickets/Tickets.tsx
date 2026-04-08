@@ -20,19 +20,13 @@ export type ViewTicket = Ticket & {
 const statusLabel: Record<string, string> = {
   waiting: "EN ESPERA",
   "partially-completed": "ENTREGA PARCIAL",
-  completed: "COMPLETADO",
-  registered: "REGISTRADO",
-  "in-progress": "EN PROCESO",
-  pending: "PENDIENTE",
+  completed: "COMPLETADO"
 };
 
 const statusBadge: Record<string, string> = {
   waiting: "bg-red-100 text-red-600",
   "partially-completed": "bg-sky-100 text-sky-600",
-  completed: "bg-green-100 text-green-600",
-  registered: "bg-blue-100 text-blue-600",
-  "in-progress": "bg-purple-100 text-purple-600",
-  pending: "bg-orange-100 text-orange-600",
+  completed: "bg-green-100 text-green-600"
 };
 
 export default function Tickets() {
@@ -69,17 +63,17 @@ export default function Tickets() {
     try {
       setLoading(true)
       const response = await getTickets({ 
-        limit: 50,
-        status: statusFilter === "all" ? undefined : statusFilter as any
+        limit: 50
       })
       
       const mapped = response.items.map(mapTicketToView)
       setTickets(mapped)
       
+    
       setCounts({
-        waiting: response.counts?.waiting || 0,
-        partiallyCompleted: response.counts?.partiallyCompleted || response.counts?.["partially-completed"] || 0,
-        completed: response.counts?.completed || 0
+        waiting: mapped.filter((t: ViewTicket) => t.fulfillmentStatus === 'waiting').length,
+        partiallyCompleted: mapped.filter((t: ViewTicket) => t.fulfillmentStatus === 'partially-completed').length,
+        completed: mapped.filter((t: ViewTicket) => t.fulfillmentStatus === 'completed').length
       })
     } catch (error) {
       console.error("Error al obtener tickets:", error)
@@ -91,7 +85,7 @@ export default function Tickets() {
 
   useEffect(() => {
     loadTickets()
-  }, [statusFilter])
+  }, [])
 
   useEffect(() => { 
     setPlaceholder("Buscar turno o paciente...") 
@@ -113,15 +107,13 @@ export default function Tickets() {
     if (!confirmData) return
     setCancelLoading(true)
     try {
-      if (confirmData.isFull) {
-        await deleteTicket(confirmData.ticketId)
-      } else {
-        await patchTicket(confirmData.ticketId, { 
-          products: confirmData.productIds.map(id => ({ productId: id })) 
-        } as any)
-      }
+      // Para cancelar todo el ticket de forma segura en el nuevo backend, usamos siempre el patch de cancel-items
+      // ya que el endpoint /purge solo permite eliminar si el estado es 'waiting'. El patch si lo vacía lo elimina internamente.
+      await patchTicket(confirmData.ticketId, { 
+        products: confirmData.productIds.map(id => ({ productId: id })) 
+      } as any)
       
-      setMensaje(confirmData.isFull ? "Ticket cancelado y stock liberado" : "Medicamento eliminado")
+      setMensaje(confirmData.isFull ? "Ticket cancelado completamente y stock liberado" : "Medicamento eliminado")
       setOpenConfirm(false)
       loadTickets()
     } catch (error) {
@@ -134,8 +126,9 @@ export default function Tickets() {
   }
 
   const filteredTickets = tickets.filter(t =>
-    t.turno.toLowerCase().includes(search.toLowerCase()) ||
-    t.paciente.toLowerCase().includes(search.toLowerCase())
+    (statusFilter === "all" || t.fulfillmentStatus === statusFilter) &&
+    (t.turno.toLowerCase().includes(search.toLowerCase()) ||
+     t.paciente.toLowerCase().includes(search.toLowerCase()))
   )
 
   const stats = [
@@ -144,20 +137,16 @@ export default function Tickets() {
     { label: "COMPLETADOS", value: counts.completed, color: "border-green-400", key: "completed" },
   ]
 
-  const handleConfirmAtender = (ticket: ViewTicket) => {
-    loadTickets()
-    setOpenModal(false)
+  const handleOpenDetails = (ticket: ViewTicket) => {
+    setActiveTicket(ticket)
+    setOpenModal(true)
   }
 
-  const handleCompletar = (ticket: ViewTicket) => {
-    const match = /(\d+)\s+de\s+(\d+)/.exec(ticket.disponibilidad)
-    if (!match) return
-    if (parseInt(match[1]) === parseInt(match[2])) {
-       loadTickets()
-    } else {
-      setMensaje("No se puede completar: faltan medicamentos.")
-      setTimeout(() => setMensaje(""), 3000)
-    }
+  const handleConfirmAtender = (ticket: ViewTicket) => {
+    // Aquí el ModalAtender puede llamar a otra función si el backend soportara marcar como entregado definitivamente.
+    // Actualmente el backend asume 'registered' como 'completado' si no hay items esperando.
+    loadTickets()
+    setOpenModal(false)
   }
 
   return (
@@ -261,8 +250,8 @@ export default function Tickets() {
                   </span>
                 </td>
                 <td className="py-4">
-                  <span className={`text-[10px] px-2 py-1 rounded-full font-bold ${statusBadge[t.status]}`}>
-                    {statusLabel[t.status] || t.status}
+                  <span className={`text-[10px] px-2 py-1 rounded-full font-bold ${statusBadge[t.fulfillmentStatus]}`}>
+                    {statusLabel[t.fulfillmentStatus] || t.fulfillmentStatus}
                   </span>
                 </td>
                 <td className="py-4">
@@ -270,12 +259,12 @@ export default function Tickets() {
                     <div className="flex justify-center gap-2">
                       <a href={`tel:${t.customerId}`} className="p-1.5 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100" title="Llamar"><Phone size={14} /></a>
                       
-                      {t.fulfillmentStatus === "waiting" && (
-                        <button onClick={() => { setActiveTicket(t); setOpenModal(true) }} className="px-3 py-1 bg-gray-800 text-white rounded text-[11px] font-bold hover:bg-black transition-transform active:scale-95">ATENDER</button>
+                      {t.fulfillmentStatus === "completed" && (
+                        <button onClick={() => handleOpenDetails(t)} className="px-3 py-1 bg-gray-800 text-white rounded text-[11px] font-bold hover:bg-black transition-transform active:scale-95">DETALLES</button>
                       )}
                       
-                      {t.fulfillmentStatus === "partially-completed" && (
-                        <button onClick={() => handleCompletar(t)} className="px-3 py-1 bg-green-600 text-white rounded text-[11px] font-bold hover:bg-green-700 flex items-center gap-1"><CheckCircle size={12} /> LISTO</button>
+                      {t.fulfillmentStatus !== "completed" && (
+                        <button onClick={() => handleOpenDetails(t)} className="px-3 py-1 bg-green-600 text-white rounded text-[11px] font-bold hover:bg-green-700 flex items-center gap-1"><CheckCircle size={12} /> REVISAR</button>
                       )}
 
                       <button 

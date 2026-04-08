@@ -29,7 +29,7 @@ export default function CreateTicketModal({ open, onClose }: Props) {
     if (open) {
       const fetchMeds = async () => {
         try {
-          const response = await getMedications({ limit: 100, status: "DISPONIBLE" })
+          const response = await getMedications({ limit: 1000 })
           // Ajusta esto según si tu API devuelve .items o el array directo
           setAvailableMeds(response.items || response) 
         } catch (error) {

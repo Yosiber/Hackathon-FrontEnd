@@ -5,10 +5,13 @@ import {
   createUser,
   verifyUser,
   resendRegisterCode,
-  updateProfilePicture
+  updateProfilePicture,
+  updateByParameter,
+  requestEmailChange,
+  verifyEmailChange
 } from "../api/requests/user.request";
 
-import type { CreateUserDto, VerifyUserOtpDto } from '../api/types/user.types';
+import type { CreateUserDto, VerifyUserOtpDto, UpdateUserDto, RequestEmailChangeDto } from '../api/types/user.types';
 
 interface UserContextType {
   loading: boolean,
@@ -17,6 +20,9 @@ interface UserContextType {
   verifyUserRegistration: (data: VerifyUserOtpDto) => Promise<boolean>;
   resendSignupCode: (data: string) => Promise<boolean>;
   updateUserImage: (userId: string, imageBase64: string) => Promise<boolean>;
+  updateUserProfile: (userId: string, data: UpdateUserDto) => Promise<boolean>;
+  requestNewEmailCode: (userId: string, data: RequestEmailChangeDto) => Promise<boolean>;
+  verifyNewEmailCode: (userId: string, code: string) => Promise<boolean>;
 }
 
 const UserContext = createContext<UserContextType | null>(null);
@@ -103,6 +109,54 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  const updateUserProfile = async (userId: string, data: UpdateUserDto): Promise<boolean> => {
+    setLoading(true);
+    setServerError(null);
+    try {
+      await updateByParameter(userId, data);
+      return true;
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        setServerError(error.response.data.message);
+      }
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const requestNewEmailCode = async (userId: string, data: RequestEmailChangeDto): Promise<boolean> => {
+    setLoading(true);
+    setServerError(null);
+    try {
+      await requestEmailChange(userId, data);
+      return true;
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        setServerError(error.response.data.message);
+      }
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  const verifyNewEmailCode = async (userId: string, code: string): Promise<boolean> => {
+    setLoading(true);
+    setServerError(null);
+    try {
+      await verifyEmailChange(userId, { code });
+      return true;
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data?.message) {
+        setServerError(error.response.data.message);
+      }
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <UserContext.Provider
       value={{
@@ -111,7 +165,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
         signUp,
         verifyUserRegistration,
         resendSignupCode,
-        updateUserImage
+        updateUserImage,
+        updateUserProfile,
+        requestNewEmailCode,
+        verifyNewEmailCode
       }}
     >
       {children}

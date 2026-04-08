@@ -19,6 +19,7 @@ import { setupAxiosResponseInterceptor } from "./features/api/axios.instance"
 import { useEffect } from "react"
 import Unauthorized from "./features/pages/errors/Unauthorized"
 import NotFound from "./features/pages/errors/NotFound"
+import LandingPage from "./features/pages/landing/LandingPage"
 
 function App() {
 
@@ -39,6 +40,7 @@ function App() {
         <SearchProvider>
           <NotificationsProvider>
             <Routes>
+              <Route path="/" element={<LandingPage />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/verify-registration" element={<InitialVerification />} />
@@ -47,7 +49,7 @@ function App() {
                 <MainLayout>
                   <Routes>
                     <Route element={<ProtectedRoute requiredRoles={[]} />} >
-                      <Route path="/" element={<Dashboard />} />
+                      <Route path="/dashboard" element={<Dashboard />} />
                       <Route path="/tickets" element={<Tickets />} />
                       <Route path="/inventory" element={<Inventory />} />
                       <Route path="/notifications" element={<Notifications />} />

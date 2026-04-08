@@ -98,11 +98,10 @@ export default function Register() {
                     </div>
                 </div>
                 <div className="p-8 md:p-14 flex flex-col justify-center">
-                    <nav className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-8">
-                        <span>Inicio</span>
-                        <span className="material-symbols-outlined text-gray-400 !text-[10px]" style={{ fontVariationSettings: "'FILL' 1" }}>chevron_right</span>
-                        <span className="text-blue-700 font-bold">Registro</span>
-                    </nav>
+                    <button type="button" onClick={() => navigate("/")} className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-widest text-gray-500 hover:text-blue-700 transition-colors mb-8 cursor-pointer bg-transparent border-none p-0">
+                        <span className="material-symbols-outlined !text-[14px]">arrow_back</span>
+                        Volver al Inicio
+                    </button>
                     <div className="mb-10">
                         <h3 className="text-3xl font-extrabold font-headline tracking-tight">Información de Perfil</h3>
                         <p className="text-gray-500 mt-2">Completa los siguientes campos para crear tu perfil de usuario.</p>
